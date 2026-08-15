@@ -17,14 +17,55 @@ interface LinkCandidate {
   confidence: 'high' | 'medium' | 'low';
 }
 
+// In-memory rate limiting configuration to prevent Gemini API quota abuse
+interface RateLimitRecord {
+  count: number;
+  resetTime: number;
+}
+
+const rateLimitMap = new Map<string, RateLimitRecord>();
+
+function apiRateLimiter(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const clientIp =
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
+    req.socket.remoteAddress ||
+    'unknown-ip';
+
+  const now = Date.now();
+  const WINDOW_MS = 60 * 1000; // 1 minute window
+  const MAX_REQUESTS = 30; // Max 30 requests per minute per IP
+
+  const record = rateLimitMap.get(clientIp);
+
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(clientIp, {
+      count: 1,
+      resetTime: now + WINDOW_MS,
+    });
+    return next();
+  }
+
+  if (record.count >= MAX_REQUESTS) {
+    const retryAfterSec = Math.ceil((record.resetTime - now) / 1000);
+    res.setHeader('Retry-After', retryAfterSec);
+    return res.status(429).json({
+      error: `AI解析の利用上限（1分間に30回）に達しました。${retryAfterSec}秒後に再度お試しください。`,
+      retryAfterSeconds: retryAfterSec,
+    });
+  }
+
+  record.count += 1;
+  return next();
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
 
-  // Parse Shared URL/Text API endpoint (Web Share Target & Quick URL Import)
-  app.post('/api/spots/parse-share-url', async (req, res) => {
+  // Parse Shared URL/Text API endpoint (Web Share Target & Quick URL Import & Bulk Import)
+  app.post('/api/spots/parse-share-url', apiRateLimiter, async (req, res) => {
     const { rawInput, title, text, url } = req.body;
 
     // Combine any shared components
