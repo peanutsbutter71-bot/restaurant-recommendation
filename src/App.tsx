@@ -24,6 +24,8 @@ import { QuickUrlImportModal } from './components/QuickUrlImportModal';
 import { MyPageModal } from './components/MyPageModal';
 import { DiscoverSwipeView } from './components/DiscoverSwipeView';
 import { ShareAppModal } from './components/ShareAppModal';
+import { StarterPackModal } from './components/StarterPackModal';
+import { StarterPack } from './data/starterPacks';
 import { Toast } from './components/Toast';
 import {
   INITIAL_PREFERENCES,
@@ -170,8 +172,38 @@ export default function App() {
   const [isQuickImportOpen, setIsQuickImportOpen] = useState(false);
   const [isMyPageOpen, setIsMyPageOpen] = useState(false);
   const [isShareAppModalOpen, setIsShareAppModalOpen] = useState(false);
+  const [isStarterModalOpen, setIsStarterModalOpen] = useState(false);
+  const [importedPackIds, setImportedPackIds] = useState<string[]>([]);
   const [quickImportInitialText, setQuickImportInitialText] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleImportStarterPack = (pack: StarterPack) => {
+    // 1. Ensure custom folder exists
+    const existingFolder = folders.find((f) => f.name.toLowerCase() === pack.folderName.toLowerCase());
+
+    if (!existingFolder) {
+      const newFolder: CustomFolder = {
+        id: `folder-pack-${Date.now()}`,
+        name: pack.folderName,
+        color: pack.folderColor || '#f43f5e',
+        createdAt: new Date().toISOString(),
+      };
+      setFolders((prev) => [...prev, newFolder]);
+    }
+
+    // 2. Map pack spots to RestaurantSpot instances with custom folder
+    const nowIso = new Date().toISOString();
+    const newSpotsToInsert: RestaurantSpot[] = pack.spots.map((spotTemplate, idx) => ({
+      ...spotTemplate,
+      id: `spot-pack-${Date.now()}-${idx}`,
+      createdAt: nowIso,
+      folders: [pack.folderName],
+    }));
+
+    setSpots((prev) => [...newSpotsToInsert, ...prev]);
+    setImportedPackIds((prev) => Array.from(new Set([...prev, pack.id])));
+    showToast(`🎉 「📁 ${pack.folderName}」フォルダに ${pack.spots.length}店舗 を保存しました！`);
+  };
 
   // Inline Quick Import input in hero/banner
   const [heroInputUrl, setHeroInputUrl] = useState('');
@@ -878,20 +910,29 @@ export default function App() {
                 <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
                   <button
                     onClick={handleResetFilters}
-                    className="px-4 py-2.5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>条件をすべてリセット</span>
+                    <span>条件をリセット</span>
                   </button>
+
+                  <button
+                    onClick={() => setIsStarterModalOpen(true)}
+                    className="px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-white" />
+                    <span>スターターパック（5選）を取り込む</span>
+                  </button>
+
                   <button
                     onClick={() => {
                       setEditingSpot(null);
                       setIsAddModalOpen(true);
                     }}
-                    className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-slate-900 to-zinc-900 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>新しいお店を登録</span>
+                    <span>お店を直接登録</span>
                   </button>
                 </div>
               </div>
@@ -1005,6 +1046,18 @@ export default function App() {
           setEditingSpot(null);
           setIsAddModalOpen(true);
         }}
+        onOpenStarterModal={() => {
+          setIsMyPageOpen(false);
+          setIsStarterModalOpen(true);
+        }}
+      />
+
+      {/* Starter Pack Modal */}
+      <StarterPackModal
+        isOpen={isStarterModalOpen}
+        onClose={() => setIsStarterModalOpen(false)}
+        onImportPack={handleImportStarterPack}
+        importedPackIds={importedPackIds}
       />
 
       {/* Share App / Invite Modal */}

@@ -41,6 +41,7 @@ interface MyPageModalProps {
   onToggleHidePrivateMemoMode: () => void;
   onShowToast: (msg: string) => void;
   onSelectFolderFilter?: (folderName: string) => void;
+  onOpenStarterModal?: () => void;
 }
 
 type TabType = 'stats' | 'folders' | 'backup' | 'privacy';
@@ -70,6 +71,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   onToggleHidePrivateMemoMode,
   onShowToast,
   onSelectFolderFilter,
+  onOpenStarterModal,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('stats');
 
@@ -536,6 +538,36 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
           {/* TAB 2: FOLDERS */}
           {activeTab === 'folders' && (
             <div className="space-y-5 animate-in fade-in duration-150">
+              {/* Starter Pack Import Banner */}
+              {onOpenStarterModal && (
+                <div className="p-3.5 rounded-xl bg-stone-900 text-white flex items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white shrink-0">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold flex items-center gap-1.5">
+                        <span>厳選スターターパックから一括追加</span>
+                      </div>
+                      <p className="text-[11px] text-stone-400">
+                        「渋谷・表参道デート」「サク飲み居酒屋」等のフォルダを1タップ追加
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenStarterModal();
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs shrink-0 cursor-pointer transition-colors"
+                  >
+                    パックを見る
+                  </button>
+                </div>
+              )}
+
               {/* Create Folder Form */}
               <form
                 onSubmit={handleCreateFolder}
