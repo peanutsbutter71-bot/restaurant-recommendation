@@ -18,6 +18,9 @@ export interface CustomFolder {
   icon?: string;
   description?: string;
   createdAt: string;
+  isShared?: boolean; // 👥 共同編集フォルダフラグ
+  shareCode?: string; // 共同編集招待コード
+  sharedMemberNames?: string[]; // 共同編集メンバーリスト
 }
 
 export interface RestaurantSpot {

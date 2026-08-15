@@ -23,6 +23,8 @@ import {
   RotateCcw,
   ShieldCheck,
   FileJson,
+  MessageSquare,
+  Share2,
 } from 'lucide-react';
 import { RestaurantSpot, CustomFolder, PriceRange, Scene } from '../types';
 import { downloadJsonBackup, parseBackupFile } from '../utils/backupHelper';
@@ -42,6 +44,7 @@ interface MyPageModalProps {
   onShowToast: (msg: string) => void;
   onSelectFolderFilter?: (folderName: string) => void;
   onOpenStarterModal?: () => void;
+  onToggleShareFolder?: (folderId: string) => void;
 }
 
 type TabType = 'stats' | 'folders' | 'backup' | 'privacy';
@@ -72,6 +75,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   onShowToast,
   onSelectFolderFilter,
   onOpenStarterModal,
+  onToggleShareFolder,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('stats');
 
@@ -79,6 +83,40 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
   const [newFolderName, setNewFolderName] = useState('');
   const [newFolderColor, setNewFolderColor] = useState('rose');
   const [isImporting, setIsImporting] = useState(false);
+
+  const handleShareFolder = async (folder: CustomFolder, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const appUrl = window.location.href;
+    const shareText = `【GourmetShare】「📁 ${folder.name}」フォルダを一緒に共同編集しよう！\nお互いの行きたい店やおすすめグルメを追加できるよ🍴\n👉 ${appUrl}`;
+
+    const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(shareText)}`;
+
+    if (onToggleShareFolder) {
+      onToggleShareFolder(folder.id);
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `【共同編集】${folder.name}`,
+          text: shareText,
+          url: appUrl,
+        });
+        onShowToast(`👥 「${folder.name}」フォルダの共同編集招待を開きました！`);
+        return;
+      } catch {
+        // Fallback
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareText);
+      onShowToast(`💬 LINE等で送れる共同編集招待をコピーしました！`);
+      window.open(lineUrl, '_blank');
+    } catch {
+      window.open(lineUrl, '_blank');
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -638,12 +676,19 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                             }}
                             className="flex items-center gap-2.5 min-w-0 cursor-pointer flex-1"
                           >
-                            <span className="p-1.5 rounded-lg bg-stone-100 text-stone-700">
+                            <span className="p-1.5 rounded-lg bg-stone-100 text-stone-700 shrink-0">
                               <FolderOpen className="w-4 h-4 text-stone-600" />
                             </span>
                             <div className="min-w-0">
-                              <div className="text-xs font-semibold text-stone-900 truncate">
-                                {folder.name}
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-semibold text-stone-900 truncate">
+                                  {folder.name}
+                                </span>
+                                {folder.isShared && (
+                                  <span className="px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 font-bold text-[9px] shrink-0 border border-orange-200">
+                                    👥 共同編集
+                                  </span>
+                                )}
                               </div>
                               <div className="text-[10px] text-stone-500">
                                 {spotCountInFolder} 軒の店舗
@@ -651,22 +696,34 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                             </div>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (
-                                window.confirm(
-                                  `「${folder.name}」フォルダを削除しますか？（店舗データ自体は削除されません）`
-                                )
-                              ) {
-                                onDeleteFolder(folder.id);
-                              }
-                            }}
-                            className="p-1.5 rounded-lg text-stone-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-                            title="フォルダを削除"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={(e) => handleShareFolder(folder, e)}
+                              className="px-2 py-1 rounded-md bg-stone-100 hover:bg-emerald-50 hover:text-emerald-700 text-stone-600 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                              title="LINEで友達を招待して共同編集"
+                            >
+                              <MessageSquare className="w-3 h-3 text-emerald-600" />
+                              <span className="hidden sm:inline">招待</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    `「${folder.name}」フォルダを削除しますか？（店舗データ自体は削除されません）`
+                                  )
+                                ) {
+                                  onDeleteFolder(folder.id);
+                                }
+                              }}
+                              className="p-1.5 rounded-lg text-stone-400 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
+                              title="フォルダを削除"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       );
                     })}

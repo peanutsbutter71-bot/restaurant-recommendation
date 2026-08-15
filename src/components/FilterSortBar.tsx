@@ -454,13 +454,14 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
                       key={folder.id}
                       id={`filter-folder-${folder.id}`}
                       onClick={() => handleToggleFolder(folder.name)}
-                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer border ${
+                      className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer border flex items-center gap-1 ${
                         isSelected
                           ? 'bg-stone-900 text-white border-stone-900 font-semibold'
                           : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200/80'
                       }`}
                     >
-                      {folder.name}
+                      {folder.isShared && <span className="text-[10px]">👥</span>}
+                      <span>{folder.name}</span>
                     </button>
                   );
                 })}

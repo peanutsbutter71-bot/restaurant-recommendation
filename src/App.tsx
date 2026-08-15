@@ -314,6 +314,12 @@ export default function App() {
     showToast(`フォルダ「${target.name}」を削除しました`);
   };
 
+  const handleToggleShareFolder = (folderId: string) => {
+    setFolders((prev) =>
+      prev.map((f) => (f.id === folderId ? { ...f, isShared: true } : f))
+    );
+  };
+
   // Full App Data Restore Handler
   const handleRestoreData = (newSpots: RestaurantSpot[], newFolders?: CustomFolder[]) => {
     setSpots(newSpots);
@@ -1050,6 +1056,7 @@ export default function App() {
           setIsMyPageOpen(false);
           setIsStarterModalOpen(true);
         }}
+        onToggleShareFolder={handleToggleShareFolder}
       />
 
       {/* Starter Pack Modal */}
