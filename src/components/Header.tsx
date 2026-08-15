@@ -1,5 +1,5 @@
 import React from 'react';
-import { UtensilsCrossed, Plus, Dices, Heart, Share2, User, Flame, ListFilter, Users } from 'lucide-react';
+import { UtensilsCrossed, Plus, Dices, Heart, Share2, User, Flame, ListFilter, Users, Layers } from 'lucide-react';
 import { MainTab } from '../types';
 
 interface HeaderProps {
@@ -9,6 +9,7 @@ interface HeaderProps {
   onTabChange: (tab: MainTab) => void;
   onOpenAddModal: () => void;
   onOpenQuickImport: () => void;
+  onOpenBulkImport?: () => void;
   onOpenRandomModal: () => void;
   onOpenMyPage?: () => void;
   onOpenShareAppModal?: () => void;
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onTabChange,
   onOpenAddModal,
   onOpenQuickImport,
+  onOpenBulkImport,
   onOpenRandomModal,
   onOpenMyPage,
   onOpenShareAppModal,
@@ -111,6 +113,23 @@ export const Header: React.FC<HeaderProps> = ({
                 AI
               </span>
             </button>
+
+            {/* Bulk URL Import Button */}
+            {onOpenBulkImport && (
+              <button
+                id="header-bulk-import-btn"
+                onClick={onOpenBulkImport}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                title="複数のGoogle Maps / 食べログURLをまとめて一括登録"
+              >
+                <Layers className="w-3.5 h-3.5 text-amber-700" />
+                <span className="hidden sm:inline">一括登録</span>
+                <span className="sm:hidden">一括</span>
+                <span className="text-[9px] bg-amber-600 text-white font-extrabold px-1 rounded">
+                  NEW
+                </span>
+              </button>
+            )}
 
             {/* Subdued: Favorites Only Toggle */}
             <button

@@ -110,3 +110,80 @@ export function clearShareParamsFromUrl() {
   url.searchParams.delete('import_url');
   window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : ''));
 }
+
+/**
+ * Extract deduplicated HTTP/HTTPS URLs from raw text
+ */
+export function extractUrlsFromText(text: string): string[] {
+  if (!text) return [];
+  const urlMatches = text.match(/https?:\/\/[^\s<>"'\(\)]+/gi) || [];
+  return Array.from(new Set(urlMatches.map((u) => u.trim()))).filter(Boolean);
+}
+
+export type DuplicateConfidence = 'none' | 'url_match' | 'id_match' | 'name_area_match';
+
+export interface DuplicateCheckResult {
+  confidence: DuplicateConfidence;
+  matchedSpot?: RestaurantSpot;
+}
+
+/**
+ * Priority Duplicate Checker:
+ * 1. URL exact match (Highest confidence)
+ * 2. Store ID match (Tabelog/Google Maps store ID) (High confidence)
+ * 3. Name + Area match (Medium confidence -> 重複候補)
+ */
+export function checkSpotDuplicate(
+  newSpot: Partial<RestaurantSpot>,
+  existingSpots: RestaurantSpot[],
+  sourceUrl?: string
+): DuplicateCheckResult {
+  if (!existingSpots || existingSpots.length === 0) {
+    return { confidence: 'none' };
+  }
+
+  const cleanUrl = sourceUrl || newSpot.mapUrl || newSpot.tabelogUrl || '';
+
+  // Priority 1: Exact URL Match
+  if (cleanUrl) {
+    const urlMatch = existingSpots.find(
+      (s) => (s.mapUrl && s.mapUrl === cleanUrl) || (s.tabelogUrl && s.tabelogUrl === cleanUrl)
+    );
+    if (urlMatch) {
+      return { confidence: 'url_match', matchedSpot: urlMatch };
+    }
+  }
+
+  // Priority 2: Store ID Match (e.g. Tabelog store ID)
+  if (cleanUrl) {
+    const tabelogIdMatch = cleanUrl.match(/tabelog\.com\/[^\/]+\/A\d+\/A\d+\/(\d+)/);
+    if (tabelogIdMatch) {
+      const storeId = tabelogIdMatch[1];
+      const idMatch = existingSpots.find(
+        (s) => s.tabelogUrl && s.tabelogUrl.includes(storeId)
+      );
+      if (idMatch) {
+        return { confidence: 'id_match', matchedSpot: idMatch };
+      }
+    }
+  }
+
+  // Priority 3: Name + Area Match
+  const newName = (newSpot.name || '').trim().toLowerCase();
+  const newArea = (newSpot.area || '').trim();
+
+  if (newName && newName !== '共有から追加したお店' && newName !== '気になるお店') {
+    const nameAreaMatch = existingSpots.find((s) => {
+      const sName = s.name.trim().toLowerCase();
+      const sArea = s.area.trim();
+      return sName === newName && (!newArea || !sArea || sArea === newArea);
+    });
+
+    if (nameAreaMatch) {
+      return { confidence: 'name_area_match', matchedSpot: nameAreaMatch };
+    }
+  }
+
+  return { confidence: 'none' };
+}
+

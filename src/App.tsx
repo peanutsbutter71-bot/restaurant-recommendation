@@ -25,6 +25,7 @@ import { MyPageModal } from './components/MyPageModal';
 import { DiscoverSwipeView } from './components/DiscoverSwipeView';
 import { ShareAppModal } from './components/ShareAppModal';
 import { StarterPackModal } from './components/StarterPackModal';
+import { BulkUrlImportModal } from './components/BulkUrlImportModal';
 import { StarterPack } from './data/starterPacks';
 import { Toast } from './components/Toast';
 import {
@@ -173,9 +174,46 @@ export default function App() {
   const [isMyPageOpen, setIsMyPageOpen] = useState(false);
   const [isShareAppModalOpen, setIsShareAppModalOpen] = useState(false);
   const [isStarterModalOpen, setIsStarterModalOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [importedPackIds, setImportedPackIds] = useState<string[]>([]);
   const [quickImportInitialText, setQuickImportInitialText] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleBatchImportSpots = (newSpots: Partial<RestaurantSpot>[], folderName?: string) => {
+    if (!newSpots || newSpots.length === 0) return;
+
+    if (folderName && !folders.some((f) => f.name.toLowerCase() === folderName.toLowerCase())) {
+      const newFolder: CustomFolder = {
+        id: `folder-${Date.now()}`,
+        name: folderName,
+        color: 'orange',
+        createdAt: new Date().toISOString(),
+      };
+      setFolders((prev) => [...prev, newFolder]);
+    }
+
+    const nowIso = new Date().toISOString();
+    const createdSpots: RestaurantSpot[] = newSpots.map((s, idx) => ({
+      id: `spot-bulk-${Date.now()}-${idx}`,
+      name: s.name || '無題の店舗',
+      area: s.area || '都内',
+      genres: s.genres && s.genres.length > 0 ? s.genres : ['カフェ・喫茶'],
+      priceRange: s.priceRange || '1000〜3000円',
+      scenes: s.scenes && s.scenes.length > 0 ? s.scenes : ['女子会'],
+      recommender: s.recommender || '一括インポート',
+      comment: s.comment || '一括登録された店舗',
+      mapUrl: s.mapUrl,
+      tabelogUrl: s.tabelogUrl,
+      imageUrl: s.imageUrl,
+      createdAt: nowIso,
+      isFavorite: false,
+      isVisited: false,
+      folders: folderName ? [folderName] : s.folders || [],
+    }));
+
+    setSpots((prev) => [...createdSpots, ...prev]);
+    showToast(`✨ ${createdSpots.length}件の店舗を一括追加しました！`);
+  };
 
   const handleImportStarterPack = (pack: StarterPack) => {
     // 1. Ensure custom folder exists
@@ -626,6 +664,7 @@ export default function App() {
           setQuickImportInitialText('');
           setIsQuickImportOpen(true);
         }}
+        onOpenBulkImport={() => setIsBulkImportOpen(true)}
         onOpenRandomModal={() => setIsRandomModalOpen(true)}
         onOpenMyPage={() => setIsMyPageOpen(true)}
         onOpenShareAppModal={() => setIsShareAppModalOpen(true)}
@@ -1073,6 +1112,17 @@ export default function App() {
         onClose={() => setIsShareAppModalOpen(false)}
         spots={spots}
         onShowToast={showToast}
+      />
+
+      {/* Bulk URL Import Modal */}
+      <BulkUrlImportModal
+        isOpen={isBulkImportOpen}
+        onClose={() => setIsBulkImportOpen(false)}
+        existingSpots={spots}
+        folders={folders}
+        onBatchImport={handleBatchImportSpots}
+        onShowToast={showToast}
+        onOpenMyPage={() => setIsMyPageOpen(true)}
       />
 
       {/* Toast Feedback */}
