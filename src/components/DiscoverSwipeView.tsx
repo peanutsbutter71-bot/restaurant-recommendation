@@ -176,7 +176,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
         {/* Header Title Row */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-stone-900 flex items-center justify-center text-orange-400 shadow-2xs">
+            <div className="w-7 h-7 rounded-lg bg-[#2D4B3E] flex items-center justify-center text-emerald-200 shadow-2xs">
               <Flame className="w-3.5 h-3.5" />
             </div>
             <div>
@@ -184,7 +184,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                 <span className="text-sm font-bold text-stone-900 tracking-tight">
                   発見スワイプ
                 </span>
-                <span className="px-2 py-0.2 rounded-full bg-stone-900 text-orange-300 text-[10px] font-semibold">
+                <span className="px-2 py-0.2 rounded-full bg-[#2D4B3E] text-emerald-100 text-[10px] font-semibold">
                   {preferenceScores.totalSwipedCount}件 スワイプ済
                 </span>
               </div>
@@ -200,10 +200,10 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                 id="discover-summary-btn"
                 type="button"
                 onClick={() => setShowSummaryModal(true)}
-                className="px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-orange-50 hover:text-orange-900 hover:border-orange-200 text-xs font-semibold flex items-center gap-1 shadow-2xs cursor-pointer transition-all active:scale-95"
+                className="px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-700 hover:bg-[#E8ECE8] hover:text-[#2D4B3E] hover:border-[#C5D8C5] text-xs font-semibold flex items-center gap-1 shadow-2xs cursor-pointer transition-all active:scale-95"
                 title="好みの分析レポートを見る"
               >
-                <Award className="w-3.5 h-3.5 text-orange-600" />
+                <Award className="w-3.5 h-3.5 text-[#2D4B3E]" />
                 <span className="hidden sm:inline">好みの分析</span>
               </button>
             )}
@@ -256,7 +256,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
         {deck.length === 0 ? (
           /* Empty / Completed Deck View */
           <div className="w-full h-full bg-white rounded-2xl border border-stone-200 shadow-xl p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in zoom-in-95">
-            <div className="w-14 h-14 rounded-full bg-stone-900 flex items-center justify-center text-orange-400 shadow-md">
+            <div className="w-14 h-14 rounded-full bg-[#2D4B3E] flex items-center justify-center text-emerald-200 shadow-md">
               <Sparkles className="w-7 h-7" />
             </div>
 
@@ -273,7 +273,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
             {(preferenceSummary.topGenres.length > 0 || preferenceSummary.topAreas.length > 0) && (
               <div className="w-full bg-stone-50 rounded-xl p-3.5 border border-stone-200 text-left space-y-2">
                 <div className="text-xs font-semibold text-stone-700 flex items-center gap-1">
-                  <Award className="w-3.5 h-3.5 text-orange-600" />
+                  <Award className="w-3.5 h-3.5 text-[#2D4B3E]" />
                   <span>あなたのおすすめ傾向:</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -288,7 +288,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                   {preferenceSummary.topAreas.map((a) => (
                     <span
                       key={a.name}
-                      className="px-2 py-0.5 rounded-md bg-orange-600 text-white text-xs font-medium"
+                      className="px-2 py-0.5 rounded-md bg-[#2D4B3E] text-white text-xs font-medium"
                     >
                       {a.name}
                     </span>
@@ -302,7 +302,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                 type="button"
                 id="discover-go-to-list-btn"
                 onClick={onSwitchToListTab}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-orange-600 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-[#2D4B3E] hover:bg-[#233B31] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>一覧画面で行きたい店を見る</span>
                 <ChevronRight className="w-4 h-4" />
@@ -387,10 +387,10 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                     className="absolute inset-0 bg-gradient-to-tl from-stone-900/50 via-stone-800/30 to-transparent pointer-events-none z-10"
                   />
 
-                  {/* 3. UP SWIPE TINT (Amber Gold / Superlike) */}
+                  {/* 3. UP SWIPE TINT (Sage Green / Superlike) */}
                   <motion.div
                     style={{ opacity: superlikeTintOpacity }}
-                    className="absolute inset-0 bg-gradient-to-t from-orange-600/40 via-amber-600/25 to-transparent pointer-events-none z-10"
+                    className="absolute inset-0 bg-gradient-to-t from-[#2D4B3E]/50 via-[#1E332A]/30 to-transparent pointer-events-none z-10"
                   />
 
                   {/* 🌟 DIRECTIONAL GLOW BORDERS */}
@@ -404,7 +404,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                   />
                   <motion.div
                     style={{ opacity: upGlowOpacity }}
-                    className="absolute inset-0 rounded-2xl border-2 border-orange-400 pointer-events-none z-20"
+                    className="absolute inset-0 rounded-2xl border-2 border-[#2D4B3E] pointer-events-none z-20"
                   />
 
                   {/* Default subtle card border */}
@@ -414,7 +414,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                   {/* LIKE STAMP (Right) */}
                   <motion.div
                     style={{ opacity: likeOpacity }}
-                    className="absolute top-6 left-6 rotate-[-12deg] border-2 border-emerald-400 bg-emerald-600/80 backdrop-blur-md px-3.5 py-1 rounded-xl text-white font-bold text-base tracking-wider shadow-lg flex items-center gap-1.5 pointer-events-none z-30"
+                    className="absolute top-6 left-6 rotate-[-12deg] border-2 border-emerald-400 bg-emerald-700/90 backdrop-blur-md px-3.5 py-1 rounded-xl text-white font-bold text-base tracking-wider shadow-lg flex items-center gap-1.5 pointer-events-none z-30"
                   >
                     <Heart className="w-4 h-4 fill-current" />
                     <span>行きたい！</span>
@@ -432,7 +432,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                   {/* SUPERLIKE STAMP (Top) */}
                   <motion.div
                     style={{ opacity: superlikeOpacity }}
-                    className="absolute top-6 inset-x-0 mx-auto w-fit border-2 border-orange-400 bg-orange-600/85 backdrop-blur-md px-4 py-1.5 rounded-xl text-white font-bold text-base tracking-wider shadow-lg flex items-center gap-1.5 pointer-events-none z-30"
+                    className="absolute top-6 inset-x-0 mx-auto w-fit border-2 border-emerald-300 bg-[#2D4B3E]/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-white font-bold text-base tracking-wider shadow-lg flex items-center gap-1.5 pointer-events-none z-30"
                   >
                     <Star className="w-5 h-5 fill-current" />
                     <span>お気に入り！</span>
@@ -442,7 +442,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                   <div className="absolute top-3.5 inset-x-3.5 flex items-center justify-between z-25">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md text-white font-medium text-xs">
-                        <MapPin className="w-3 h-3 text-orange-400" />
+                        <MapPin className="w-3 h-3 text-emerald-200" />
                         {currentSpot.area}
                       </span>
                       <span className="inline-flex items-center px-2 py-1 rounded-md bg-black/60 backdrop-blur-md text-stone-200 font-medium text-xs">
@@ -563,7 +563,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
             id="swipe-btn-superlike"
             type="button"
             onClick={() => handleSwipeAction('up')}
-            className="w-10 h-10 rounded-full bg-orange-50 hover:bg-orange-100 border border-orange-300 text-orange-600 shadow-sm transition-all duration-150 active:scale-90 flex items-center justify-center cursor-pointer"
+            className="w-10 h-10 rounded-full bg-[#E8ECE8] hover:bg-[#D8ECD8] border border-[#C5D8C5] text-[#2D4B3E] shadow-sm transition-all duration-150 active:scale-90 flex items-center justify-center cursor-pointer"
             title="お気に入りに即追加（上スワイプ）"
           >
             <Star className="w-4 h-4 fill-current" />
@@ -574,7 +574,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
             id="swipe-btn-like"
             type="button"
             onClick={() => handleSwipeAction('right')}
-            className="w-12 h-12 rounded-full bg-stone-900 hover:bg-orange-600 text-white shadow-sm transition-all duration-150 active:scale-90 flex items-center justify-center cursor-pointer"
+            className="w-12 h-12 rounded-full bg-[#2D4B3E] hover:bg-[#233B31] text-white shadow-sm transition-all duration-150 active:scale-90 flex items-center justify-center cursor-pointer"
             title="行きたい！（右スワイプ）"
           >
             <Heart className="w-5 h-5 fill-current" />
@@ -712,7 +712,7 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                   setShowSummaryModal(false);
                   onSwitchToListTab();
                 }}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-slate-900 to-zinc-900 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-3 rounded-2xl bg-[#2D4B3E] hover:bg-[#233B31] text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>行きたいリストを確認する</span>
                 <ChevronRight className="w-4 h-4" />

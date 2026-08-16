@@ -96,7 +96,7 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 border-b border-stone-200 bg-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-stone-900 flex items-center justify-center text-orange-400">
+            <div className="w-8 h-8 rounded-lg bg-[#2D4B3E] flex items-center justify-center text-emerald-200">
               <Share2 className="w-4 h-4" />
             </div>
             <div>
@@ -165,13 +165,13 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
               placeholder="例: 「このカフェ良さそう！ https://tabelog.com/...」 または Googleマップの共有リンク"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="w-full p-3 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm leading-relaxed text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-all resize-none"
+              className="w-full p-3 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm leading-relaxed text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-[#2D4B3E] transition-all resize-none"
             />
           </div>
 
           {errorMessage && (
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-50 border border-orange-200 text-orange-800 text-xs">
-              <AlertCircle className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-stone-100 border border-stone-300 text-stone-800 text-xs">
+              <AlertCircle className="w-4 h-4 text-[#2D4B3E] shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
@@ -187,7 +187,7 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
                 ? 'bg-stone-200 text-stone-500 cursor-wait'
                 : !inputText.trim()
                 ? 'bg-stone-100 text-stone-400 cursor-not-allowed'
-                : 'bg-stone-900 hover:bg-stone-800 text-white active:scale-98 shadow-xs'
+                : 'bg-[#2D4B3E] hover:bg-[#233B31] text-white active:scale-98 shadow-xs'
             }`}
           >
             {isLoading ? (
@@ -197,7 +197,7 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 text-orange-400" />
+                <Sparkles className="w-4 h-4 text-emerald-200" />
                 <span>AIで解析して登録画面を開く</span>
               </>
             )}

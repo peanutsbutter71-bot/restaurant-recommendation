@@ -41,12 +41,12 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => onTabChange('list')}
               className="flex items-center gap-2 text-left group cursor-pointer focus:outline-none shrink-0"
             >
-              <div className="w-8 h-8 rounded-xl bg-stone-900 flex items-center justify-center text-stone-100 shadow-xs group-hover:bg-orange-600 transition-colors">
-                <UtensilsCrossed className="w-4 h-4 text-orange-400" />
+              <div className="w-8 h-8 rounded-xl bg-[#2D4B3E] flex items-center justify-center text-stone-100 shadow-xs group-hover:bg-[#233B31] transition-colors">
+                <UtensilsCrossed className="w-4 h-4 text-emerald-200" />
               </div>
               <div className="hidden xs:block">
                 <span className="text-base sm:text-lg font-bold tracking-tight text-stone-900 whitespace-nowrap">
-                  Gourmet<span className="text-orange-600 font-extrabold">Share</span>
+                  Gourmet<span className="text-[#2D4B3E] font-extrabold">Share</span>
                 </span>
               </div>
             </button>
@@ -76,11 +76,11 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => onTabChange('discover')}
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
                   activeTab === 'discover'
-                    ? 'bg-stone-900 text-white shadow-2xs font-bold'
+                    ? 'bg-[#2D4B3E] text-white shadow-2xs font-bold'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                <Flame className={`w-3.5 h-3.5 ${activeTab === 'discover' ? 'text-orange-400' : 'text-stone-400'}`} />
+                <Flame className={`w-3.5 h-3.5 ${activeTab === 'discover' ? 'text-emerald-200' : 'text-stone-400'}`} />
                 <span>発見</span>
               </button>
             </div>
@@ -105,13 +105,13 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="header-bulk-import-btn"
                 onClick={onOpenBulkImport}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-[#E8ECE8] hover:bg-[#D8ECD8] text-[#2D4B3E] border border-[#C5D8C5] transition-all cursor-pointer shadow-2xs whitespace-nowrap"
                 title="複数のGoogle Maps / 食べログURLをまとめて一括登録"
               >
-                <Layers className="w-3.5 h-3.5 text-amber-700" />
+                <Layers className="w-3.5 h-3.5 text-[#2D4B3E]" />
                 <span className="hidden md:inline">一括登録</span>
                 <span className="md:hidden">一括</span>
-                <span className="text-[9px] bg-amber-600 text-white font-extrabold px-1 rounded">
+                <span className="text-[9px] bg-[#2D4B3E] text-white font-extrabold px-1 rounded">
                   NEW
                 </span>
               </button>
@@ -123,14 +123,14 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onToggleFavoritesOnly}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all border cursor-pointer whitespace-nowrap ${
                 favoritesOnly
-                  ? 'bg-orange-50 text-orange-600 border-orange-300 shadow-2xs font-bold'
+                  ? 'bg-[#E8ECE8] text-[#2D4B3E] border-[#C5D8C5] shadow-2xs font-bold'
                   : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
               }`}
               title="お気に入りのみ表示"
             >
-              <Heart className={`w-3.5 h-3.5 ${favoritesOnly ? 'fill-current text-orange-600' : 'text-stone-400'}`} />
+              <Heart className={`w-3.5 h-3.5 ${favoritesOnly ? 'fill-current text-[#2D4B3E]' : 'text-stone-400'}`} />
               <span className="hidden lg:inline">お気に入り</span>
-              <span className={`text-[10px] px-1 py-0.2 rounded ${favoritesOnly ? 'bg-orange-100 text-orange-800' : 'bg-stone-100 text-stone-500'}`}>
+              <span className={`text-[10px] px-1 py-0.2 rounded ${favoritesOnly ? 'bg-[#D8ECD8] text-[#2D4B3E]' : 'bg-stone-100 text-stone-500'}`}>
                 {favoriteCount}
               </span>
             </button>
@@ -163,7 +163,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="header-add-spot-btn"
               onClick={onOpenAddModal}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-stone-900 hover:bg-orange-600 shadow-2xs transition-all cursor-pointer whitespace-nowrap shrink-0"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#2D4B3E] hover:bg-[#233B31] shadow-2xs transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span className="hidden sm:inline">お店を記録</span>

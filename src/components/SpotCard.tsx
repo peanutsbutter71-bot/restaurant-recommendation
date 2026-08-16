@@ -52,7 +52,7 @@ export const SpotCard: React.FC<SpotCardProps> = ({
           {/* Area & Status */}
           <div className="flex items-center gap-1.5 pointer-events-auto flex-wrap">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md text-white font-medium text-xs shadow-2xs">
-              <MapPin className="w-3 h-3 text-orange-400" />
+              <MapPin className="w-3 h-3 text-emerald-200" />
               {spot.area}
             </span>
 
@@ -77,13 +77,13 @@ export const SpotCard: React.FC<SpotCardProps> = ({
               className={`px-2.5 py-1 rounded-md text-xs font-semibold backdrop-blur-md transition-all active:scale-95 flex items-center gap-1 shadow-2xs ${
                 spot.isVisited
                   ? 'bg-stone-900/90 text-white hover:bg-stone-900'
-                  : 'bg-white/90 text-stone-800 hover:bg-white hover:text-orange-600'
+                  : 'bg-white/90 text-stone-800 hover:bg-white hover:text-[#2D4B3E]'
               }`}
               title={spot.isVisited ? '訪問済み（クリックで「行きたい」に変更）' : '行きたい（クリックで「行った」に変更）'}
             >
               {spot.isVisited ? (
                 <>
-                  <Check className="w-3 h-3 text-orange-400 stroke-[3]" />
+                  <Check className="w-3 h-3 text-emerald-200 stroke-[3]" />
                   <span>行った</span>
                 </>
               ) : (
@@ -104,8 +104,8 @@ export const SpotCard: React.FC<SpotCardProps> = ({
               }}
               className={`p-1.5 rounded-md backdrop-blur-md transition-all active:scale-90 shadow-2xs ${
                 spot.isFavorite
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-white/90 text-stone-700 hover:text-orange-600 hover:bg-white'
+                  ? 'bg-[#2D4B3E] text-white'
+                  : 'bg-white/90 text-stone-700 hover:text-[#2D4B3E] hover:bg-white'
               }`}
               title={spot.isFavorite ? 'お気に入り解除' : 'お気に入りに追加'}
             >
@@ -147,15 +147,15 @@ export const SpotCard: React.FC<SpotCardProps> = ({
         <div>
           {/* Shop Title & Arrow */}
           <div className="flex items-start justify-between gap-2">
-            <h2 className="text-base font-bold text-stone-900 leading-snug group-hover:text-orange-600 transition-colors line-clamp-1">
+            <h2 className="text-base font-bold text-stone-900 leading-snug group-hover:text-[#2D4B3E] transition-colors line-clamp-1">
               {spot.name}
             </h2>
-            <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-orange-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all opacity-0 group-hover:opacity-100 shrink-0 mt-0.5" />
+            <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-[#2D4B3E] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all opacity-0 group-hover:opacity-100 shrink-0 mt-0.5" />
           </div>
 
           {/* Highlight Dish if present */}
           {spot.highlightDish && (
-            <p className="mt-1 text-xs font-semibold text-orange-600 flex items-center gap-1">
+            <p className="mt-1 text-xs font-semibold text-[#2D4B3E] flex items-center gap-1">
               <Sparkles className="w-3 h-3 shrink-0" />
               <span className="truncate">名物: {spot.highlightDish}</span>
             </p>

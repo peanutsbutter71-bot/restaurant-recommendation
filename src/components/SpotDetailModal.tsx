@@ -258,7 +258,7 @@ export const SpotDetailModal: React.FC<SpotDetailModalProps> = ({
                     </>
                   ) : (
                     <>
-                      <Bookmark className="w-3.5 h-3.5 text-orange-600 stroke-[2.5]" />
+                      <Bookmark className="w-3.5 h-3.5 text-[#2D4B3E] stroke-[2.5]" />
                       <span>行きたい</span>
                     </>
                   )}
@@ -283,14 +283,14 @@ export const SpotDetailModal: React.FC<SpotDetailModalProps> = ({
                   onClick={() => onToggleFavorite(spot.id)}
                   className={`p-2 rounded-lg backdrop-blur-md transition-all cursor-pointer ${
                     spot.isFavorite
-                      ? 'bg-white text-orange-600 shadow-sm'
+                      ? 'bg-white text-[#2D4B3E] shadow-sm'
                       : 'bg-black/50 hover:bg-black/70 text-white'
                   }`}
                   title={spot.isFavorite ? 'お気に入り解除' : 'お気に入りに追加'}
                 >
                   <Heart
                     className={`w-4 h-4 ${
-                      spot.isFavorite ? 'fill-orange-600' : ''
+                      spot.isFavorite ? 'fill-[#2D4B3E]' : ''
                     }`}
                   />
                 </button>
@@ -312,7 +312,7 @@ export const SpotDetailModal: React.FC<SpotDetailModalProps> = ({
                     訪問済み
                   </span>
                 ) : (
-                  <span className="px-2 py-0.5 rounded-md font-medium bg-orange-600/90 text-white">
+                  <span className="px-2 py-0.5 rounded-md font-medium bg-[#2D4B3E]/90 text-white">
                     行きたい
                   </span>
                 )}

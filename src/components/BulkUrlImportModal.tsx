@@ -254,7 +254,7 @@ export const BulkUrlImportModal: React.FC<BulkUrlImportModalProps> = ({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100 bg-stone-50/50 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-orange-100 text-orange-700">
+            <span className="p-2 rounded-xl bg-[#E8ECE8] text-[#2D4B3E]">
               <Layers className="w-5 h-5" />
             </span>
             <div>
@@ -316,8 +316,8 @@ export const BulkUrlImportModal: React.FC<BulkUrlImportModalProps> = ({
           {step === 'parsing' && (
             <div className="py-12 text-center space-y-4">
               <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border-4 border-orange-200 animate-ping opacity-30" />
-                <div className="w-12 h-12 rounded-full bg-orange-600 text-white flex items-center justify-center shadow-lg">
+                <div className="absolute inset-0 rounded-full border-4 border-[#C5D8C5] animate-ping opacity-30" />
+                <div className="w-12 h-12 rounded-full bg-[#2D4B3E] text-white flex items-center justify-center shadow-lg">
                   <Sparkles className="w-6 h-6 animate-spin" />
                 </div>
               </div>
@@ -331,7 +331,7 @@ export const BulkUrlImportModal: React.FC<BulkUrlImportModalProps> = ({
 
               <div className="w-full max-w-xs mx-auto bg-stone-100 rounded-full h-2 overflow-hidden">
                 <div
-                  className="bg-orange-600 h-full transition-all duration-300 rounded-full"
+                  className="bg-[#2D4B3E] h-full transition-all duration-300 rounded-full"
                   style={{
                     width: `${Math.min(100, Math.round((currentIndex / extractedUrls.length) * 100))}%`,
                   }}
@@ -527,9 +527,9 @@ export const BulkUrlImportModal: React.FC<BulkUrlImportModalProps> = ({
                 type="button"
                 onClick={handleExtractAndStartParse}
                 disabled={extractUrlsFromText(rawText).length === 0}
-                className="px-5 py-2.5 rounded-xl bg-stone-900 text-white font-bold text-xs hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
+                className="px-5 py-2.5 rounded-xl bg-[#2D4B3E] text-white font-bold text-xs hover:bg-[#233B31] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
               >
-                <Sparkles className="w-4 h-4 text-orange-400" />
+                <Sparkles className="w-4 h-4 text-emerald-200" />
                 <span>{extractUrlsFromText(rawText).length}件のURLを解析する</span>
               </button>
             </>
@@ -549,7 +549,7 @@ export const BulkUrlImportModal: React.FC<BulkUrlImportModalProps> = ({
                 type="button"
                 onClick={handleExecuteBatchImport}
                 disabled={selectedCount === 0}
-                className="px-6 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer shadow-lg transition-all"
+                className="px-6 py-2.5 rounded-xl bg-[#2D4B3E] hover:bg-[#233B31] text-white font-extrabold text-xs disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer shadow-lg transition-all"
               >
                 <span>{items.length}件中 {selectedCount}件を一括登録する</span>
                 <ArrowRight className="w-4 h-4" />

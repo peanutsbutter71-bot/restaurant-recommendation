@@ -110,7 +110,7 @@ export const RandomRouletteModal: React.FC<RandomRouletteModalProps> = ({
 
         {/* Header */}
         <div className="flex items-center gap-2.5 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-stone-900 text-orange-400 flex items-center justify-center shadow-xs shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[#2D4B3E] text-emerald-200 flex items-center justify-center shadow-xs shrink-0">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
@@ -205,11 +205,11 @@ export const RandomRouletteModal: React.FC<RandomRouletteModalProps> = ({
               onClick={() => { setUnvisitedOnly(!unvisitedOnly); setSelectedIndex(0); }}
               className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer border transition-colors ${
                 unvisitedOnly
-                  ? 'bg-orange-50 border-orange-200 text-orange-800'
+                  ? 'bg-[#E8ECE8] border-[#C5D8C5] text-[#2D4B3E]'
                   : 'bg-white border-stone-200 text-stone-600'
               }`}
             >
-              <Bookmark className={`w-3 h-3 ${unvisitedOnly ? 'text-orange-600 fill-orange-600' : ''}`} />
+              <Bookmark className={`w-3 h-3 ${unvisitedOnly ? 'text-[#2D4B3E] fill-[#2D4B3E]' : ''}`} />
               <span>未訪問のみ</span>
             </button>
           </div>
@@ -230,7 +230,7 @@ export const RandomRouletteModal: React.FC<RandomRouletteModalProps> = ({
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent" />
               <div className="absolute top-2 left-2 flex items-center gap-1">
                 <span className="px-2 py-0.5 rounded bg-white text-stone-900 text-xs font-semibold shadow-xs flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-orange-600" />
+                  <MapPin className="w-3 h-3 text-[#2D4B3E]" />
                   {activeSpot.area}
                 </span>
                 <span className="px-2 py-0.5 rounded bg-black/60 backdrop-blur-xs text-white text-xs font-medium">
@@ -256,7 +256,7 @@ export const RandomRouletteModal: React.FC<RandomRouletteModalProps> = ({
                 </div>
               )}
               {activeSpot.highlightDish && (
-                <span className="ml-2 inline-flex items-center gap-1 text-xs font-semibold text-orange-600">
+                <span className="ml-2 inline-flex items-center gap-1 text-xs font-semibold text-[#2D4B3E]">
                   <Sparkles className="w-3 h-3" />
                   <span>名物: {activeSpot.highlightDish}</span>
                 </span>

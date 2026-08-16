@@ -160,7 +160,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
             <div className="flex items-center gap-1.5">
               <Bookmark
                 className={`w-3.5 h-3.5 ${
-                  isUnvisitedOnlyActive ? 'text-orange-400 stroke-[2.5]' : 'text-stone-400'
+                  isUnvisitedOnlyActive ? 'text-emerald-200 stroke-[2.5]' : 'text-stone-400'
                 }`}
               />
               <span className="text-xs font-semibold whitespace-nowrap">
@@ -169,7 +169,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
               <span
                 className={`text-[10px] font-semibold px-1.5 py-0.2 rounded ${
                   isUnvisitedOnlyActive
-                    ? 'bg-stone-800 text-orange-300'
+                    ? 'bg-[#1E332A] text-emerald-200'
                     : 'bg-stone-200/70 text-stone-600'
                 }`}
               >
@@ -188,7 +188,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
                 handleToggleUnvisitedOnly();
               }}
               className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                isUnvisitedOnlyActive ? 'bg-orange-600' : 'bg-stone-300'
+                isUnvisitedOnlyActive ? 'bg-[#2D4B3E]' : 'bg-stone-300'
               }`}
             >
               <div
@@ -205,7 +205,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
             onClick={handleToggleFavoritesOnly}
             className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg border transition-all cursor-pointer select-none ${
               filters.favoritesOnly
-                ? 'bg-orange-50 border-orange-300 text-orange-950 shadow-2xs font-semibold'
+                ? 'bg-[#E8ECE8] border-[#C5D8C5] text-[#2D4B3E] shadow-2xs font-semibold'
                 : 'bg-stone-50 hover:bg-stone-100/80 border-stone-200 text-stone-700'
             }`}
             title="お気に入りに追加した店舗のみを表示します"
@@ -214,7 +214,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
               <Heart
                 className={`w-3.5 h-3.5 ${
                   filters.favoritesOnly
-                    ? 'text-orange-600 fill-orange-600'
+                    ? 'text-[#2D4B3E] fill-[#2D4B3E]'
                     : 'text-stone-400'
                 }`}
               />
@@ -234,7 +234,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
                 handleToggleFavoritesOnly();
               }}
               className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                filters.favoritesOnly ? 'bg-orange-600' : 'bg-stone-300'
+                filters.favoritesOnly ? 'bg-[#2D4B3E]' : 'bg-stone-300'
               }`}
             >
               <div
@@ -269,7 +269,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
             onChange={(e) =>
               onFilterChange((prev) => ({ ...prev, searchQuery: e.target.value }))
             }
-            className="w-full pl-10 pr-9 py-2 bg-stone-50 hover:bg-stone-100/50 focus:bg-white border border-stone-200 rounded-lg text-sm placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+            className="w-full pl-10 pr-9 py-2 bg-stone-50 hover:bg-stone-100/50 focus:bg-white border border-stone-200 rounded-lg text-sm placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#2D4B3E]/20 focus:border-[#2D4B3E] transition-all"
           />
           {filters.searchQuery && (
             <button
@@ -296,7 +296,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
                   sortBy: e.target.value as SortOption,
                 }))
               }
-              className="w-full pl-8 pr-8 py-2 bg-stone-50 hover:bg-stone-100/70 border border-stone-200 rounded-lg text-xs font-semibold text-stone-700 appearance-none focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 cursor-pointer transition-all"
+              className="w-full pl-8 pr-8 py-2 bg-stone-50 hover:bg-stone-100/70 border border-stone-200 rounded-lg text-xs font-semibold text-stone-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#2D4B3E]/20 focus:border-[#2D4B3E] cursor-pointer transition-all"
             >
               <option value="newest">追加日時：新しい順</option>
               <option value="oldest">追加日時：古い順</option>
@@ -322,7 +322,7 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>詳細絞り込み</span>
             {filters.areas.length + filters.genres.length + filters.priceRanges.length > 0 && (
-              <span className="w-4 h-4 flex items-center justify-center text-[10px] font-bold bg-orange-600 text-white rounded">
+              <span className="w-4 h-4 flex items-center justify-center text-[10px] font-bold bg-[#2D4B3E] text-white rounded">
                 {filters.areas.length + filters.genres.length + filters.priceRanges.length}
               </span>
             )}
@@ -511,9 +511,9 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
               {isUnvisitedOnlyActive && (
                 <span
                   id="active-chip-unvisited"
-                  className="inline-flex items-center gap-1 bg-stone-900 text-white px-2 py-0.5 rounded-md text-xs font-semibold shadow-2xs"
+                  className="inline-flex items-center gap-1 bg-[#2D4B3E] text-white px-2 py-0.5 rounded-md text-xs font-semibold shadow-2xs"
                 >
-                  <Bookmark className="w-3 h-3 text-orange-400" />
+                  <Bookmark className="w-3 h-3 text-emerald-200" />
                   <span>未訪問のみ</span>
                   <button
                     type="button"
@@ -530,14 +530,14 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
               {filters.favoritesOnly && (
                 <span
                   id="active-chip-favorites"
-                  className="inline-flex items-center gap-1 bg-orange-50 text-orange-700 px-2 py-0.5 rounded-md border border-orange-200 text-xs font-semibold shadow-2xs"
+                  className="inline-flex items-center gap-1 bg-[#E8ECE8] text-[#2D4B3E] px-2 py-0.5 rounded-md border border-[#C5D8C5] text-xs font-semibold shadow-2xs"
                 >
-                  <Heart className="w-3 h-3 text-orange-600 fill-orange-600" />
+                  <Heart className="w-3 h-3 text-[#2D4B3E] fill-[#2D4B3E]" />
                   <span>お気に入りのみ</span>
                   <button
                     type="button"
                     onClick={handleToggleFavoritesOnly}
-                    className="text-orange-600 hover:text-orange-950 cursor-pointer p-0.5"
+                    className="text-[#2D4B3E] hover:text-stone-900 cursor-pointer p-0.5"
                     title="お気に入りのみ解除"
                   >
                     <X className="w-3 h-3" />

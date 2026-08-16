@@ -40,7 +40,7 @@ export const SwipePreferenceInsightWidget: React.FC<SwipePreferenceInsightWidget
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-stone-900 flex items-center justify-center text-orange-400 shadow-2xs">
+          <div className="w-6 h-6 rounded-md bg-[#2D4B3E] flex items-center justify-center text-emerald-200 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5" />
           </div>
           <div>
@@ -48,7 +48,7 @@ export const SwipePreferenceInsightWidget: React.FC<SwipePreferenceInsightWidget
               <span className="text-xs font-bold text-stone-900 tracking-tight">
                 好み学習インサイト
               </span>
-              <span className="px-1.5 py-0.2 rounded bg-orange-50 text-orange-700 border border-orange-200 text-[10px] font-semibold">
+              <span className="px-1.5 py-0.2 rounded bg-[#E8ECE8] text-[#2D4B3E] border border-[#C5D8C5] text-[10px] font-semibold">
                 Lv.{summary.level}
               </span>
             </div>
@@ -97,7 +97,7 @@ export const SwipePreferenceInsightWidget: React.FC<SwipePreferenceInsightWidget
                   右: 行きたい
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="w-2 h-2 rounded-full bg-[#2D4B3E]" />
                   上: お気に入り
                 </span>
                 <span className="flex items-center gap-1">
@@ -128,7 +128,7 @@ export const SwipePreferenceInsightWidget: React.FC<SwipePreferenceInsightWidget
                           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white text-stone-800 text-[10px] font-semibold border border-stone-200 shadow-2xs"
                         >
                           <span>{g.name}</span>
-                          <span className="text-[9px] font-bold text-orange-600 bg-orange-50 px-1 rounded-sm">
+                          <span className="text-[9px] font-bold text-[#2D4B3E] bg-[#E8ECE8] px-1 rounded-sm">
                             +{g.score}
                           </span>
                         </span>
@@ -143,7 +143,7 @@ export const SwipePreferenceInsightWidget: React.FC<SwipePreferenceInsightWidget
                 <div className="bg-stone-50 rounded-lg p-2 border border-stone-200/70 space-y-1">
                   <div className="flex items-center justify-between text-[10px] font-bold text-stone-800">
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-orange-600" />
+                      <MapPin className="w-3 h-3 text-[#2D4B3E]" />
                       おすすめエリア
                     </span>
                     <span className="text-[9px] text-stone-400">好感度スコア</span>
@@ -156,7 +156,7 @@ export const SwipePreferenceInsightWidget: React.FC<SwipePreferenceInsightWidget
                           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white text-stone-800 text-[10px] font-semibold border border-stone-200 shadow-2xs"
                         >
                           <span>{a.name}</span>
-                          <span className="text-[9px] font-bold text-orange-600 bg-orange-50 px-1 rounded-sm">
+                          <span className="text-[9px] font-bold text-[#2D4B3E] bg-[#E8ECE8] px-1 rounded-sm">
                             +{a.score}
                           </span>
                         </span>
@@ -192,10 +192,10 @@ export const SwipePreferenceInsightWidget: React.FC<SwipePreferenceInsightWidget
                   <button
                     type="button"
                     onClick={onOpenDetailedSummary}
-                    className="text-stone-800 hover:text-orange-600 font-semibold shrink-0 hover:underline cursor-pointer flex items-center gap-0.5 ml-2"
+                    className="text-stone-800 hover:text-[#2D4B3E] font-semibold shrink-0 hover:underline cursor-pointer flex items-center gap-0.5 ml-2"
                   >
                     <span>詳細レポート</span>
-                    <TrendingUp className="w-3 h-3 text-orange-600" />
+                    <TrendingUp className="w-3 h-3 text-[#2D4B3E]" />
                   </button>
                 )}
               </div>

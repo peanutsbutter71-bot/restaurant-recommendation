@@ -85,7 +85,7 @@ export const SpotListItem: React.FC<SpotListItemProps> = ({
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
             {/* Area Badge */}
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-100 text-stone-800 font-semibold text-[11px]">
-              <MapPin className="w-2.5 h-2.5 text-orange-600" />
+              <MapPin className="w-2.5 h-2.5 text-[#2D4B3E]" />
               {spot.area}
             </span>
 
@@ -131,7 +131,7 @@ export const SpotListItem: React.FC<SpotListItemProps> = ({
             >
               {spot.isVisited ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-orange-400 stroke-[3]" />
+                  <Check className="w-3.5 h-3.5 text-emerald-200 stroke-[3]" />
                   <span className="hidden md:inline">行った</span>
                 </>
               ) : (
@@ -151,14 +151,14 @@ export const SpotListItem: React.FC<SpotListItemProps> = ({
               }}
               className={`p-1.5 rounded-md transition-all border active:scale-90 cursor-pointer ${
                 spot.isFavorite
-                  ? 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100'
-                  : 'bg-white text-stone-400 border-stone-200 hover:text-orange-600 hover:bg-stone-50'
+                  ? 'bg-[#E8ECE8] text-[#2D4B3E] border-[#C5D8C5] hover:bg-[#D8ECD8]'
+                  : 'bg-white text-stone-400 border-stone-200 hover:text-[#2D4B3E] hover:bg-stone-50'
               }`}
               title={spot.isFavorite ? 'お気に入り解除' : 'お気に入りに追加'}
             >
               <Heart
                 className={`w-3.5 h-3.5 ${
-                  spot.isFavorite ? 'fill-current text-orange-600' : ''
+                  spot.isFavorite ? 'fill-current text-[#2D4B3E]' : ''
                 }`}
               />
             </button>
@@ -168,14 +168,14 @@ export const SpotListItem: React.FC<SpotListItemProps> = ({
         {/* Row 2: Shop Name & Highlight Dish */}
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm sm:text-base font-bold text-stone-900 group-hover:text-orange-600 transition-colors truncate">
+            <h3 className="text-sm sm:text-base font-bold text-stone-900 group-hover:text-[#2D4B3E] transition-colors truncate">
               {spot.name}
             </h3>
-            <ArrowUpRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-orange-600 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-[#2D4B3E] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {spot.highlightDish && (
-            <p className="text-[11px] text-orange-600 font-semibold truncate flex items-center gap-1 mt-0.5">
+            <p className="text-[11px] text-[#2D4B3E] font-semibold truncate flex items-center gap-1 mt-0.5">
               <Sparkles className="w-3 h-3 shrink-0" />
               <span>名物: {spot.highlightDish}</span>
             </p>
@@ -244,7 +244,7 @@ export const SpotListItem: React.FC<SpotListItemProps> = ({
                 className="hover:text-stone-900 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-stone-50 hover:bg-stone-100 border border-stone-200/60 text-stone-700 transition-colors"
                 title="食べログを開く"
               >
-                <UtensilsCrossed className="w-2.5 h-2.5 text-orange-600" />
+                <UtensilsCrossed className="w-2.5 h-2.5 text-[#2D4B3E]" />
                 <span>食べログ</span>
               </a>
             )}
