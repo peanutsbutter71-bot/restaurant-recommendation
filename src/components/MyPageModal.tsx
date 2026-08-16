@@ -29,6 +29,7 @@ import {
 import { RestaurantSpot, CustomFolder, PriceRange, Scene } from '../types';
 import { downloadJsonBackup, parseBackupFile } from '../utils/backupHelper';
 import { generateRecommenderAvatar } from '../utils/helpers';
+import { generateCollabFolderInviteUrl } from '../utils/collabFolderHelper';
 
 interface MyPageModalProps {
   isOpen: boolean;
@@ -86,10 +87,12 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
 
   const handleShareFolder = async (folder: CustomFolder, e: React.MouseEvent) => {
     e.stopPropagation();
-    const appUrl = window.location.href;
-    const shareText = `【GourmetShare】「📁 ${folder.name}」フォルダを一緒に共同編集しよう！\nお互いの行きたい店やおすすめグルメを追加できるよ🍴\n👉 ${appUrl}`;
 
-    const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(shareText)}`;
+    // Find all spots belonging to this folder
+    const spotsInFolder = spots.filter((s) => s.folders?.includes(folder.name));
+    const inviteUrl = generateCollabFolderInviteUrl(folder, spotsInFolder);
+
+    const shareText = `【GourmetShare 🤝 コラボ手帳招待】\n「📁 ${folder.name}」手帳を一緒に共有しよう！\nお互いの「行きたい店」を追加・チェックできるよ🍴\n👉 ${inviteUrl}`;
 
     if (onToggleShareFolder) {
       onToggleShareFolder(folder.id);
@@ -98,11 +101,11 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `【共同編集】${folder.name}`,
+          title: `【コラボ手帳招待】${folder.name}`,
           text: shareText,
-          url: appUrl,
+          url: inviteUrl,
         });
-        onShowToast(`👥 「${folder.name}」フォルダの共同編集招待を開きました！`);
+        onShowToast(`👥 「${folder.name}」コラボ手帳の招待メニューを開きました！`);
         return;
       } catch {
         // Fallback
@@ -110,11 +113,10 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
     }
 
     try {
-      await navigator.clipboard.writeText(shareText);
-      onShowToast(`💬 LINE等で送れる共同編集招待をコピーしました！`);
-      window.open(lineUrl, '_blank');
+      await navigator.clipboard.writeText(inviteUrl);
+      onShowToast(`🤝 コラボ手帳の招待URL（${spotsInFolder.length}軒入り）をコピーしました！`);
     } catch {
-      window.open(lineUrl, '_blank');
+      window.prompt('招待URLをコピーしてください:', inviteUrl);
     }
   };
 

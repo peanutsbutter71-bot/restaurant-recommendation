@@ -28,6 +28,8 @@ import { StarterPackModal } from './components/StarterPackModal';
 import { BulkUrlImportModal } from './components/BulkUrlImportModal';
 import { StarterPack } from './data/starterPacks';
 import { Toast } from './components/Toast';
+import { CollabFolderInviteModal } from './components/CollabFolderInviteModal';
+import { parseCollabFolderInviteUrl, CollabFolderInvitePayload } from './utils/collabFolderHelper';
 import {
   INITIAL_PREFERENCES,
   updatePreferencesWithSwipe,
@@ -177,6 +179,11 @@ export default function App() {
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [importedPackIds, setImportedPackIds] = useState<string[]>([]);
   const [quickImportInitialText, setQuickImportInitialText] = useState('');
+  // Collaborative Folder Invite Payload state (parsed from ?collabFolder=...)
+  const [collabInvitePayload, setCollabInvitePayload] = useState<CollabFolderInvitePayload | null>(() =>
+    parseCollabFolderInviteUrl(window.location.search)
+  );
+
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleBatchImportSpots = (newSpots: Partial<RestaurantSpot>[], folderName?: string) => {
@@ -241,6 +248,41 @@ export default function App() {
     setSpots((prev) => [...newSpotsToInsert, ...prev]);
     setImportedPackIds((prev) => Array.from(new Set([...prev, pack.id])));
     showToast(`🎉 「📁 ${pack.folderName}」フォルダに ${pack.spots.length}店舗 を保存しました！`);
+  };
+
+  const handleJoinCollabFolder = (invite: CollabFolderInvitePayload) => {
+    const { folder, spots: sharedSpots } = invite;
+
+    // 1. Ensure shared folder exists and has isShared: true
+    setFolders((prev) => {
+      const existing = prev.find((f) => f.name.toLowerCase() === folder.name.toLowerCase());
+      if (existing) {
+        return prev.map((f) =>
+          f.name.toLowerCase() === folder.name.toLowerCase() ? { ...f, isShared: true } : f
+        );
+      }
+      return [...prev, { ...folder, isShared: true }];
+    });
+
+    // 2. Insert/Merge shared spots into user's list
+    if (sharedSpots.length > 0) {
+      const nowIso = new Date().toISOString();
+      const newSpotsToInsert: RestaurantSpot[] = sharedSpots.map((spotTemplate, idx) => ({
+        ...spotTemplate,
+        id: `spot-collab-${Date.now()}-${idx}`,
+        createdAt: nowIso,
+        folders: Array.from(new Set([...(spotTemplate.folders || []), folder.name])),
+      }));
+      setSpots((prev) => [...newSpotsToInsert, ...prev]);
+    }
+
+    // 3. Automatically filter current view to this shared folder
+    setFilters((prev) => ({ ...prev, folders: [folder.name] }));
+
+    // 4. Close invitation modal & clean URL search string
+    setCollabInvitePayload(null);
+    window.history.replaceState({}, '', window.location.pathname);
+    showToast(`🎉 「📁 ${folder.name}」コラボ手帳に参加しました！`);
   };
 
   // Inline Quick Import input in hero/banner
@@ -1123,6 +1165,13 @@ export default function App() {
         onBatchImport={handleBatchImportSpots}
         onShowToast={showToast}
         onOpenMyPage={() => setIsMyPageOpen(true)}
+      />
+
+      {/* Collaborative Folder Invite Modal */}
+      <CollabFolderInviteModal
+        inviteData={collabInvitePayload}
+        onClose={() => setCollabInvitePayload(null)}
+        onJoinFolder={handleJoinCollabFolder}
       />
 
       {/* Toast Feedback */}
