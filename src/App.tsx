@@ -772,16 +772,30 @@ export default function App() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setQuickImportInitialText('');
-                  setIsQuickImportOpen(true);
-                }}
-                className="text-xs font-bold text-[#2D4B3E] hover:underline flex items-center gap-1 self-end sm:self-auto cursor-pointer"
-              >
-                <span>詳しい使い方・PWA共有ガイド</span>
-              </button>
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickImportInitialText('');
+                    setIsQuickImportOpen(true);
+                  }}
+                  className="text-xs font-bold text-[#2D4B3E] hover:underline flex items-center gap-1 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-[#C5D8C5] shadow-2xs"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>📷 画像スクショで解析</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickImportInitialText('');
+                    setIsQuickImportOpen(true);
+                  }}
+                  className="text-xs font-bold text-[#2D4B3E] hover:underline hidden sm:flex items-center gap-1 cursor-pointer"
+                >
+                  <span>詳しい使い方・PWA共有ガイド</span>
+                </button>
+              </div>
             </div>
 
             {/* Quick Input Row */}

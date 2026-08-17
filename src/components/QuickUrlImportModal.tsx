@@ -16,7 +16,8 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { RestaurantSpot } from '../types';
-import { parseSharedUrlOrText } from '../utils/aiShareImport';
+import { parseSharedUrlOrText, parseSharedImage } from '../utils/aiShareImport';
+import { Image as ImageIcon, UploadCloud } from 'lucide-react';
 
 interface QuickUrlImportModalProps {
   isOpen: boolean;
@@ -35,8 +36,10 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
 }) => {
   const [inputText, setInputText] = useState(initialShareText);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('AI解析中...');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPwaGuide, setShowPwaGuide] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (initialShareText) {
@@ -44,7 +47,55 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
     }
   }, [initialShareText]);
 
+  // Handle clipboard paste of images
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleWindowPaste = (e: ClipboardEvent) => {
+      if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
+        const file = e.clipboardData.files[0];
+        if (file.type.startsWith('image/')) {
+          e.preventDefault();
+          processImageFile(file);
+        }
+      }
+    };
+
+    window.addEventListener('paste', handleWindowPaste);
+    return () => window.removeEventListener('paste', handleWindowPaste);
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const processImageFile = async (file: File) => {
+    setIsLoading(true);
+    setLoadingText('📷 AIがスクショ画像から文字を解析中...');
+    setErrorMessage(null);
+
+    try {
+      onShowToast('📷 画像から店舗情報をAI解析中...');
+      const result = await parseSharedImage(file);
+      if (result.spot) {
+        onShowToast('✨ スクショ画像から店舗情報を自動抽出しました！');
+        onSuccessParsed(result.spot);
+        onClose();
+      } else {
+        setErrorMessage('画像から店舗情報を読み取れませんでした。鮮明なスクショ画像をお試しください。');
+      }
+    } catch (err: any) {
+      console.error('Image Vision parse error:', err);
+      setErrorMessage(err.message || '画像解析に失敗しました。');
+    } finally {
+      setIsLoading(false);
+      setLoadingText('AI解析中...');
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processImageFile(e.target.files[0]);
+    }
+  };
 
   const handlePasteClipboard = async () => {
     try {
@@ -174,6 +225,43 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               className="w-full p-3 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm leading-relaxed text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-[#2D4B3E] transition-all resize-none"
             />
+          </div>
+
+          {/* Image Screenshot Dropzone / File Select */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-stone-700 flex items-center gap-1">
+              <ImageIcon className="w-3.5 h-3.5 text-[#2D4B3E]" />
+              <span>またはスクショ画像をアップロード・ペースト</span>
+            </label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                  const file = e.dataTransfer.files[0];
+                  if (file.type.startsWith('image/')) {
+                    processImageFile(file);
+                  }
+                }
+              }}
+              className="p-3 border-2 border-dashed border-stone-300 hover:border-[#2D4B3E] rounded-xl bg-stone-50/80 hover:bg-[#E8ECE8]/30 transition-all text-center cursor-pointer flex flex-col items-center justify-center gap-1 group"
+            >
+              <UploadCloud className="w-5 h-5 text-stone-400 group-hover:text-[#2D4B3E] transition-colors" />
+              <div className="text-xs font-semibold text-stone-700 group-hover:text-[#2D4B3E]">
+                📷 スクショ画像を選択・ドラッグ＆ドロップ
+              </div>
+              <p className="text-[11px] text-stone-400">
+                LINEやインスタで届いた食べログ・マップのスクショ（コピペ Ctrl+V にも対応）
+              </p>
+            </div>
           </div>
 
           {errorMessage && (

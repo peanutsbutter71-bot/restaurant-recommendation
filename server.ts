@@ -266,6 +266,123 @@ ${inputContent}
     }
   });
 
+  // Parse Shared Screenshot Image API Endpoint (画像スクショAI自動解析)
+  app.post('/api/spots/parse-image', apiRateLimiter, async (req, res) => {
+    const { imageBase64, mimeType = 'image/jpeg' } = req.body;
+
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      return res.status(400).json({ error: '画像データが見つかりません' });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'GEMINI_API_KEYが設定されていません' });
+    }
+
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = `あなたは日本のグルメスポット専門AIアシスタントです。
+提供された画像は、食べログ、Googleマップ、Instagram、LINEチャット、Twitterなどの店舗スクリーンショット画像です。
+
+画像からテキスト（店名、エリア、住所、ジャンル、メニュー、雰囲気、予算、評価など）を読み取り、以下のJSONフォーマットで出力してください。
+
+【厳格なルール】
+1. 店名 (name) は正式名称または最も目立つ名称を正確に抽出してください。
+2. エリア (area) は「渋谷」「表参道」「新宿」「高田馬場」「恵比寿」などの最寄り駅・地域名を1つ抽出してください。
+3. ジャンル (genres) は ["カフェ", "ビストロ"] などの配列形式で指定してください。
+4. 価格帯 (priceRange) は "〜1000円", "1000〜3000円", "3000〜5000円", "5000円〜" の4つのいずれかから最も近いものを選んでください。
+5. コメント (comment) には、画像に載っている特徴や魅力（「雰囲気がオシャレ」「プリンが人気」など）を2文程度でまとめてください。
+6. 返答は余計な解説を含めず、純粋なJSONのみを出力してください。
+
+JSON構造例:
+{
+  "name": "店舗名",
+  "area": "渋谷",
+  "genres": ["カフェ", "スイーツ"],
+  "scenes": ["デート", "女子会"],
+  "priceRange": "1000〜3000円",
+  "comment": "画像から抽出したお店の特徴メモ"
+}`;
+
+      const contents = [
+        {
+          role: 'user',
+          parts: [
+            {
+              inlineData: {
+                data: imageBase64,
+                mimeType: mimeType,
+              },
+            },
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ];
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.7-flash',
+        contents,
+        config: {
+          tools: [{ googleSearch: {} }],
+        },
+      });
+
+      const responseText = response.text || '';
+      let jsonString = responseText;
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[1];
+      }
+
+      let parsedResult: any = {};
+      try {
+        parsedResult = JSON.parse(jsonString);
+      } catch (e) {
+        console.warn('Failed to parse JSON from Vision response:', responseText);
+      }
+
+      // Check grounding chunks for direct links
+      const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const webLinks: Array<{ uri: string; title: string }> = [];
+      for (const chunk of groundingChunks) {
+        if (chunk.web?.uri) {
+          webLinks.push({
+            uri: chunk.web.uri,
+            title: chunk.web.title || '',
+          });
+        }
+      }
+      const tabelogGrounding = webLinks.find((l) => l.uri.includes('tabelog.com'));
+      const mapsGrounding = webLinks.find(
+        (l) => l.uri.includes('google.com/maps') || l.uri.includes('maps.app.goo.gl')
+      );
+
+      const spot = {
+        name: parsedResult.name || '画像から抽出したお店',
+        area: parsedResult.area || '都内',
+        genres: Array.isArray(parsedResult.genres) && parsedResult.genres.length > 0 ? parsedResult.genres : ['カフェ・喫茶'],
+        scenes: Array.isArray(parsedResult.scenes) && parsedResult.scenes.length > 0 ? parsedResult.scenes : ['友達・同僚と'],
+        priceRange: parsedResult.priceRange || '1000〜3000円',
+        recommender: 'スクショ画像共有',
+        comment: parsedResult.comment || '画像スクショからAI自動抽出',
+        mapUrl: mapsGrounding?.uri,
+        tabelogUrl: tabelogGrounding?.uri,
+      };
+
+      return res.json({
+        spot,
+        message: '✨ 画像から店舗情報をAI解析しました！',
+      });
+    } catch (err: any) {
+      console.error('Error during Vision AI share parse:', err);
+      return res.status(500).json({
+        error: '画像解析中にエラーが発生しました',
+      });
+    }
+  });
+
   // Health check endpoint
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });

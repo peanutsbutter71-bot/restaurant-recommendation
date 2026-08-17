@@ -190,3 +190,30 @@ export function checkSpotDuplicate(
   return { confidence: 'none' };
 }
 
+export async function parseSharedImage(file: File): Promise<ParseShareResponse> {
+  const { compressImageFile } = await import('./imageCompressor');
+  const { base64Data, mimeType } = await compressImageFile(file);
+
+  const response = await fetch('/api/spots/parse-image', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      imageBase64: base64Data,
+      mimeType,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || '画像からの店舗解析に失敗しました');
+  }
+
+  return {
+    spot: data.spot,
+    isAiParsed: true,
+    message: data.message || '✨ 画像から店舗情報をAI解析しました！',
+  };
+}
+
