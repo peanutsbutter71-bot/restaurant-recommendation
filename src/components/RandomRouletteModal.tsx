@@ -255,12 +255,6 @@ export const RandomRouletteModal: React.FC<RandomRouletteModalProps> = ({
                   <span>{activeSpot.recommender} のおすすめ</span>
                 </div>
               )}
-              {activeSpot.highlightDish && (
-                <span className="ml-2 inline-flex items-center gap-1 text-xs font-semibold text-[#2D4B3E]">
-                  <Sparkles className="w-3 h-3" />
-                  <span>名物: {activeSpot.highlightDish}</span>
-                </span>
-              )}
               <p className="text-xs text-stone-700 leading-relaxed font-normal line-clamp-2 bg-white p-2.5 rounded-lg border border-stone-200/70">
                 「{activeSpot.comment}」
               </p>

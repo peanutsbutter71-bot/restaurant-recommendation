@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F43F5E"/>
+      <stop offset="100%" stop-color="#FB923C"/>
+    </linearGradient>
+    <filter id="drop-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg-grad)"/>
+  
+  <!-- Utensils / Heart icon -->
+  <g filter="url(#drop-shadow)" fill="#FFFFFF">
+    <path d="M256 390c-4.5 0-9-1.7-12.4-5.1C229.4 370.7 136 281.3 136 200c0-44.1 35.9-80 80-80 23.3 0 44.4 10 59.2 26 2.8 3 7.8 3 10.6 0 14.8-16 35.9-26 59.2-26 44.1 0 80 35.9 80 80 0 81.3-93.4 170.7-107.6 184.9-3.4 3.4-7.9 5.1-12.4 5.1z" opacity="0.95"/>
+    <!-- Fork & Spoon Accent inside heart -->
+    <path d="M256 180c-15.5 0-28 12.5-28 28v56c0 6.6 5.4 12 12 12h32c6.6 0 12-5.4 12-12v-56c0-15.5-12.5-28-28-28z" fill="#F43F5E"/>
+    <circle cx="256" cy="220" r="14" fill="#FFFFFF"/>
+    <path d="M251 240h10v60h-10z" fill="#FFFFFF" rx="5"/>
+  </g>
+</svg>

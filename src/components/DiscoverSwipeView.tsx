@@ -491,12 +491,6 @@ export const DiscoverSwipeView: React.FC<DiscoverSwipeViewProps> = ({
                       <h2 className="text-xl sm:text-2xl font-bold tracking-tight leading-tight drop-shadow-xs text-white">
                         {currentSpot.name}
                       </h2>
-                      {currentSpot.highlightDish && (
-                        <p className="text-xs font-semibold text-orange-400 mt-0.5 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-orange-400 shrink-0" />
-                          <span>名物: {currentSpot.highlightDish}</span>
-                        </p>
-                      )}
                     </div>
 
                     {/* Recommender Quote Card (Instagram Stories / Editorial Note) */}
