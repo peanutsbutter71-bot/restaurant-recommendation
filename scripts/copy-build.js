@@ -17,4 +17,10 @@ function copyDir(src, dest) {
 
 copyDir('dist', 'public');
 copyDir('dist', 'build');
-console.log('Build outputs synced to public and build folders for Vercel!');
+if (fs.existsSync('dist/index.html')) {
+  fs.copyFileSync('dist/index.html', 'index.html');
+}
+if (fs.existsSync('dist/assets')) {
+  copyDir('dist/assets', 'assets');
+}
+console.log('Build outputs synced to root, public, and build folders for GitHub Pages & Vercel!');
