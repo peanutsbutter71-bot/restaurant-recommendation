@@ -137,30 +137,37 @@ async function startServer() {
 ${inputContent}
 """
 
-【指示】
-1. URLやテキストから対象の店舗（レストラン、カフェ、居酒屋、ラーメン屋、スイーツ店など）を特定してください。
-2. 食べログ、Googleマップ、Instagram、公式ページ等の情報から以下を特定・分類してください：
+【重要な指示】
+1. もし入力URLが「Googleマップの保存リスト・再生リスト共有URL」（例: maps.app.goo.gl のリストリンク）や、複数の店舗URL・店舗名が含まれるテキストの場合は、含まれる【すべての飲食店】（最大20軒）を抽出してください。
+2. 単一の店舗の場合は、1軒のみ抽出してください。
+3. 食べログ、Googleマップ、Instagram、公式ページ等の情報から以下を特定・分類してください：
    - 正式店舗名 (name): 例 "CHAVATY 表参道", "挽肉と米 渋谷"
    - エリア・最寄り駅 (area): 例 "表参道", "渋谷", "新宿", "銀座", "横浜" など代表的なエリア・駅名（2〜6文字程度）
    - ジャンル (genres): ["カフェ・喫茶", "イタリアン・パスタ", "和食・定食", "焼肉・肉料理", "寿司・海鮮", "ラーメン・麺類", "居酒屋・バル", "中華・アジア", "スイーツ・パン", "フレンチ・ビストロ", "カレー", "洋食"] の中から1〜3個
    - シーン (scenes): ["デート・記念日", "女子会・カフェ巡り", "友達・同僚と", "一人でゆったり", "ご褒美・贅沢", "サクッとごはん", "宴会・飲み会"] の中から1〜3個
    - 価格帯 (priceRange): "〜¥1,000", "¥1,000〜¥2,000", "¥2,000〜¥4,000", "¥4,000〜¥8,000", "¥8,000〜¥15,000", "¥15,000〜" の中から最も近い1つ
-   - おすすめメニュー・名物 (highlightDish): 代表的な看板メニュー（例: "本日のスコーンセット", "炭火焼きハンバーグ"）
-   - コメント・魅力 (comment): 共有テキスト内のメモや、店舗の特徴（例: "SNSで話題の絶品スコーンとティーラテが人気のお店"）
+   - おすすめメニュー・名物 (highlightDish): 代表的な看板メニュー
+   - コメント・魅力 (comment): 共有テキスト内のメモや、店舗の特徴
    - GoogleマップURL (mapUrl): 正確なGoogleマップURL
    - 食べログURL (tabelogUrl): 正確な食べログURL
 
-3. 必ず以下のJSON形式のみを出力してください（マークダウンコードブロックや純粋なJSON）:
+4. 必ず以下のJSON形式のみを出力してください（複数店舗の場合は "spots" 配列に格納）:
 {
-  "name": "店舗名",
-  "area": "エリア名",
-  "genres": ["ジャンル1", "ジャンル2"],
-  "scenes": ["シーン1", "シーン2"],
-  "priceRange": "¥1,000〜¥2,000",
-  "highlightDish": "名物メニュー",
-  "comment": "店舗の特徴やおすすめポイント",
-  "mapUrl": "https://...",
-  "tabelogUrl": "https://..."
+  "isList": true,
+  "listTitle": "行ってみたい 食",
+  "spots": [
+    {
+      "name": "店舗名",
+      "area": "エリア名",
+      "genres": ["ジャンル1"],
+      "scenes": ["シーン1"],
+      "priceRange": "¥1,000〜¥2,000",
+      "highlightDish": "名物メニュー",
+      "comment": "特徴メモ",
+      "mapUrl": "https://...",
+      "tabelogUrl": "https://..."
+    }
+  ]
 }`;
 
       const response = await ai.models.generateContent({
@@ -172,7 +179,7 @@ ${inputContent}
       });
 
       const responseText = response.text || '';
-      let parsedSpot: any = {};
+      let parsedResult: any = {};
 
       try {
         let cleanJson = responseText.trim();
@@ -181,10 +188,16 @@ ${inputContent}
         } else if (cleanJson.startsWith('```')) {
           cleanJson = cleanJson.replace(/^```\s*/, '').replace(/```\s*$/, '');
         }
-        parsedSpot = JSON.parse(cleanJson);
+        parsedResult = JSON.parse(cleanJson);
       } catch (e) {
         console.warn('JSON parsing failed from Gemini share parse response:', e);
       }
+
+      const extractedSpotsArray: any[] = Array.isArray(parsedResult.spots)
+        ? parsedResult.spots
+        : parsedResult.name
+        ? [parsedResult]
+        : [];
 
       // Check grounding chunks for direct links
       const groundingChunks =
@@ -203,42 +216,40 @@ ${inputContent}
         (l) => l.uri.includes('google.com/maps') || l.uri.includes('maps.app.goo.gl')
       );
 
-      const finalMapUrl =
-        parsedSpot.mapUrl && parsedSpot.mapUrl.startsWith('http')
-          ? parsedSpot.mapUrl
-          : isGoogleMaps
-          ? extractedUrl
-          : mapsGrounding?.uri || undefined;
+      const formattedSpots = extractedSpotsArray.map((sp) => ({
+        name: sp.name || '気になるお店',
+        area: sp.area || '都内',
+        genres: Array.isArray(sp.genres) && sp.genres.length > 0 ? sp.genres : ['カフェ・喫茶'],
+        scenes: Array.isArray(sp.scenes) && sp.scenes.length > 0 ? sp.scenes : ['友達・同僚と'],
+        priceRange: sp.priceRange || '1000〜3000円',
+        recommender: 'Googleマップ共有',
+        comment: sp.comment || 'Googleマップ共有リストから追加',
+        mapUrl: sp.mapUrl || (isGoogleMaps ? extractedUrl : mapsGrounding?.uri),
+        tabelogUrl: sp.tabelogUrl || (isTabelog ? extractedUrl : tabelogGrounding?.uri),
+        highlightDish: sp.highlightDish || '',
+      }));
 
-      const finalTabelogUrl =
-        parsedSpot.tabelogUrl && parsedSpot.tabelogUrl.startsWith('http')
-          ? parsedSpot.tabelogUrl
-          : isTabelog
-          ? extractedUrl
-          : tabelogGrounding?.uri || undefined;
-
-      const spot = {
-        name: parsedSpot.name || title || '店名未設定',
-        area: parsedSpot.area || '都内',
-        genres: Array.isArray(parsedSpot.genres) && parsedSpot.genres.length > 0
-          ? parsedSpot.genres
-          : ['カフェ・喫茶'],
-        scenes: Array.isArray(parsedSpot.scenes) && parsedSpot.scenes.length > 0
-          ? parsedSpot.scenes
-          : ['友達・同僚と'],
-        priceRange: parsedSpot.priceRange || '¥1,000〜¥2,000',
+      const firstSpot = formattedSpots[0] || {
+        name: '共有から追加したお店',
+        area: '都内',
+        genres: ['カフェ・喫茶'],
+        priceRange: '1000〜3000円',
         recommender: '共有リンク',
-        comment: parsedSpot.comment || `共有リンクよりインポート: ${inputContent.slice(0, 80)}`,
-        mapUrl: finalMapUrl,
-        tabelogUrl: finalTabelogUrl,
-        highlightDish: parsedSpot.highlightDish || '',
+        comment: `共有リンクから追加: ${inputContent.slice(0, 100)}`,
+        mapUrl: isGoogleMaps ? extractedUrl : undefined,
       };
 
       return res.json({
-        spot,
+        spot: firstSpot,
+        spots: formattedSpots,
+        isList: parsedResult.isList || formattedSpots.length > 1,
+        listTitle: parsedResult.listTitle || 'Googleマップ保存リスト',
         sourceUrl: extractedUrl,
-        isAiParsed: true,
-        groundingSourcesCount: webLinks.length,
+        isAiParsed: formattedSpots.length > 0,
+        message:
+          formattedSpots.length > 1
+            ? `✨ Googleマップリストから ${formattedSpots.length}軒 のお店を自動抽出しました！`
+            : '✨ AIが店舗情報を解析しました！',
       });
     } catch (err: any) {
       console.error('Error during AI share parse:', err);

@@ -31,6 +31,11 @@ import { Toast } from './components/Toast';
 import { CollabFolderInviteModal } from './components/CollabFolderInviteModal';
 import { parseCollabFolderInviteUrl, CollabFolderInvitePayload } from './utils/collabFolderHelper';
 import {
+  saveSpotsToIndexedDb,
+  loadSpotsFromIndexedDb,
+  saveFoldersToIndexedDb,
+} from './utils/indexedDbStorage';
+import {
   INITIAL_PREFERENCES,
   updatePreferencesWithSwipe,
 } from './utils/swipePreferences';
@@ -289,22 +294,38 @@ export default function App() {
   const [heroInputUrl, setHeroInputUrl] = useState('');
   const [isHeroAnalyzing, setIsHeroAnalyzing] = useState(false);
 
-  // Sync spots to localStorage
+  // Load IndexedDB backup asynchronously on startup if available
+  useEffect(() => {
+    loadSpotsFromIndexedDb().then((dbSpots) => {
+      if (dbSpots && dbSpots.length > 0) {
+        setSpots((prev) => {
+          if (prev.length < dbSpots.length) {
+            return dbSpots;
+          }
+          return prev;
+        });
+      }
+    });
+  }, []);
+
+  // Sync spots to localStorage and IndexedDB (for large volume storage protection)
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(spots));
     } catch (e) {
-      console.error('Failed to save spots to storage', e);
+      console.warn('localStorage full, relying on IndexedDB:', e);
     }
+    saveSpotsToIndexedDb(spots);
   }, [spots]);
 
-  // Sync folders to localStorage
+  // Sync folders to localStorage and IndexedDB
   useEffect(() => {
     try {
       localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(folders));
     } catch (e) {
       console.error('Failed to save folders to storage', e);
     }
+    saveFoldersToIndexedDb(folders);
   }, [folders]);
 
   // Sync privacy mode to localStorage

@@ -75,7 +75,14 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
 
     try {
       const result = await parseSharedUrlOrText(inputText);
-      if (result.spot) {
+      if (result.spots && result.spots.length > 1) {
+        onShowToast(`✨ Googleマップ保存リスト「${result.listTitle || '保存リスト'}」から ${result.spots.length}軒 を一括抽出しました！`);
+        onSuccessParsed({
+          name: result.listTitle || 'Googleマップ共有リスト',
+          comment: `リストから ${result.spots.length}軒 を自動登録`,
+        });
+        onClose();
+      } else if (result.spot) {
         onShowToast('✨ AIが店舗情報を解析しました！');
         onSuccessParsed(result.spot);
         onClose();

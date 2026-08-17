@@ -2,6 +2,9 @@ import { RestaurantSpot } from '../types';
 
 export interface ParseShareResponse {
   spot: Partial<RestaurantSpot>;
+  spots?: Partial<RestaurantSpot>[];
+  isList?: boolean;
+  listTitle?: string;
   sourceUrl?: string;
   isAiParsed: boolean;
   groundingSourcesCount?: number;
