@@ -174,12 +174,6 @@ export const SpotListItem: React.FC<SpotListItemProps> = ({
             <ArrowUpRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-[#2D4B3E] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
-          {spot.highlightDish && (
-            <p className="text-[11px] text-[#2D4B3E] font-semibold truncate flex items-center gap-1 mt-0.5">
-              <Sparkles className="w-3 h-3 shrink-0" />
-              <span>名物: {spot.highlightDish}</span>
-            </p>
-          )}
         </div>
 
         {/* Row 3: Recommender & Comment preview */}

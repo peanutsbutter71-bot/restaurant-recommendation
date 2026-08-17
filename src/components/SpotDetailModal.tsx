@@ -344,13 +344,6 @@ export const SpotDetailModal: React.FC<SpotDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* Highlight dish if present */}
-              {spot.highlightDish && (
-                <div className="mb-2.5 inline-flex items-center gap-1 px-2.5 py-1 bg-white rounded-md border border-stone-200 text-xs font-semibold text-stone-800">
-                  <span>イチ押し: {spot.highlightDish}</span>
-                </div>
-              )}
-
               {/* Comment text */}
               <p className="text-stone-800 text-sm leading-relaxed whitespace-pre-wrap font-normal">
                 {spot.comment}

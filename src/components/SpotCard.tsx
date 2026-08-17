@@ -153,14 +153,6 @@ export const SpotCard: React.FC<SpotCardProps> = ({
             <ArrowUpRight className="w-4 h-4 text-stone-400 group-hover:text-[#2D4B3E] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all opacity-0 group-hover:opacity-100 shrink-0 mt-0.5" />
           </div>
 
-          {/* Highlight Dish if present */}
-          {spot.highlightDish && (
-            <p className="mt-1 text-xs font-semibold text-[#2D4B3E] flex items-center gap-1">
-              <Sparkles className="w-3 h-3 shrink-0" />
-              <span className="truncate">名物: {spot.highlightDish}</span>
-            </p>
-          )}
-
           {/* Recommender Quote Card (Lemon8/BeReal style friend curation) */}
           <div className="mt-2.5 p-2.5 bg-stone-50 rounded-xl border border-stone-200/70">
             <div className="flex items-center justify-between gap-1.5 mb-1">

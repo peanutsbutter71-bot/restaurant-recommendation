@@ -516,22 +516,6 @@ export const AddEditSpotModal: React.FC<AddEditSpotModalProps> = ({
             {errors.scenes && <p className="text-xs text-orange-600">{errors.scenes}</p>}
           </div>
 
-          {/* Highlight Dish */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-stone-700 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-stone-400" />
-              推しメニュー・頼むべき一品（任意）
-            </label>
-            <input
-              id="input-spot-highlight"
-              type="text"
-              placeholder="例: 自家製レトロプリン、生ウニのパスタ"
-              value={highlightDish}
-              onChange={(e) => setHighlightDish(e.target.value)}
-              className="w-full px-3.5 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-stone-900"
-            />
-          </div>
-
           {/* Comment */}
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold text-stone-700 flex items-center gap-1">
