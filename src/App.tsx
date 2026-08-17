@@ -753,90 +753,91 @@ export default function App() {
       ) : (
         <main className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-7 flex-1 w-full space-y-5 animate-in fade-in duration-200">
           {/* Quick URL / Share Import Hero Bar */}
-          <div className="bg-gradient-to-r from-slate-900/5 via-amber-500/10 to-orange-500/10 p-4 sm:p-5 rounded-3xl border border-amber-200/80 shadow-xs space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-slate-900 via-zinc-800 to-amber-600 flex items-center justify-center text-amber-300 shadow-xs">
-                <Share2 className="w-3.5 h-3.5" />
+          <div className="bg-[#E8ECE8]/50 p-4 sm:p-5 rounded-3xl border border-[#C5D8C5] shadow-2xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-[#2D4B3E] flex items-center justify-center text-emerald-200 shadow-2xs">
+                  <Share2 className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-extrabold text-stone-900 flex items-center gap-1.5">
+                    <span>共有URLからAI一発登録</span>
+                    <span className="text-[10px] bg-[#2D4B3E] text-emerald-200 px-2 py-0.2 rounded-full font-bold">
+                      食べログ・Googleマップ・Instagram
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-stone-500 hidden sm:block">
+                    リンクを貼るだけで、店名・エリア・ジャンル・予算をAIが自動抽出して記録できます
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                  <span>共有URLからAI一発登録</span>
-                  <span className="text-[10px] bg-slate-900 text-amber-300 px-2 py-0.2 rounded-full font-bold">
-                    食べログ・Googleマップ・Instagram
-                  </span>
-                </h3>
-                <p className="text-[11px] text-stone-500 hidden sm:block">
-                  リンクを貼るだけで、店名・エリア・ジャンル・予算をAIが自動抽出して記録できます
-                </p>
-              </div>
-            </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setQuickImportInitialText('');
-                setIsQuickImportOpen(true);
-              }}
-              className="text-xs font-bold text-amber-800 hover:text-amber-900 hover:underline flex items-center gap-1 self-end sm:self-auto cursor-pointer"
-            >
-              <span>詳しい使い方・PWA共有ガイド</span>
-            </button>
-          </div>
-
-          {/* Quick Input Row */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <div className="relative flex-1">
-              <input
-                id="hero-quick-url-input"
-                type="text"
-                placeholder="食べログ、Googleマップ、InstagramのURLまたは共有文を貼り付け..."
-                value={heroInputUrl}
-                onChange={(e) => setHeroInputUrl(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleHeroAnalyze();
-                  }
-                }}
-                className="w-full pl-3.5 pr-20 py-2.5 bg-white border border-stone-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 shadow-xs"
-              />
               <button
                 type="button"
-                onClick={handleHeroPaste}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold text-stone-600 hover:text-amber-800 bg-stone-100 hover:bg-amber-50 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
-                title="クリップボードから貼り付け"
+                onClick={() => {
+                  setQuickImportInitialText('');
+                  setIsQuickImportOpen(true);
+                }}
+                className="text-xs font-bold text-[#2D4B3E] hover:underline flex items-center gap-1 self-end sm:self-auto cursor-pointer"
               >
-                <Clipboard className="w-3 h-3" />
-                <span>貼付</span>
+                <span>詳しい使い方・PWA共有ガイド</span>
               </button>
             </div>
 
-            <button
-              id="hero-quick-analyze-btn"
-              type="button"
-              onClick={handleHeroAnalyze}
-              disabled={isHeroAnalyzing || !heroInputUrl.trim()}
-              className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer shrink-0 ${
-                isHeroAnalyzing
-                  ? 'bg-amber-200 text-amber-800 cursor-wait'
-                  : !heroInputUrl.trim()
-                  ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-slate-900 to-zinc-900 hover:from-amber-600 hover:to-orange-600 text-white active:scale-95 shadow-slate-900/10'
-              }`}
-            >
-              {isHeroAnalyzing ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-amber-800 border-t-transparent rounded-full animate-spin" />
-                  <span>AI解析中...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span>AIで一発登録</span>
-                </>
-              )}
-            </button>
+            {/* Quick Input Row */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  id="hero-quick-url-input"
+                  type="text"
+                  placeholder="食べログ、Googleマップ、InstagramのURLまたは共有文を貼り付け..."
+                  value={heroInputUrl}
+                  onChange={(e) => setHeroInputUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleHeroAnalyze();
+                    }
+                  }}
+                  className="w-full pl-3.5 pr-20 py-2.5 bg-white border border-stone-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#2D4B3E]/20 focus:border-[#2D4B3E] shadow-2xs"
+                />
+                <button
+                  type="button"
+                  onClick={handleHeroPaste}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-[11px] font-bold text-stone-600 hover:text-[#2D4B3E] bg-stone-100 hover:bg-[#E8ECE8] rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+                  title="クリップボードから貼り付け"
+                >
+                  <Clipboard className="w-3 h-3 text-[#2D4B3E]" />
+                  <span>貼付</span>
+                </button>
+              </div>
+
+              <button
+                id="hero-quick-analyze-btn"
+                type="button"
+                onClick={handleHeroAnalyze}
+                disabled={isHeroAnalyzing || !heroInputUrl.trim()}
+                className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+                  isHeroAnalyzing
+                    ? 'bg-stone-200 text-stone-500 cursor-wait'
+                    : !heroInputUrl.trim()
+                    ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                    : 'bg-[#2D4B3E] hover:bg-[#233B31] text-white active:scale-95 shadow-2xs'
+                }`}
+              >
+                {isHeroAnalyzing ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-stone-400 border-t-transparent rounded-full animate-spin" />
+                    <span>AI解析中...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
+                    <span>AIで一発登録</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
