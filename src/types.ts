@@ -53,6 +53,10 @@ export interface RestaurantSpot {
   operatingStatus?: OperatingStatus;
   statusCheckNote?: string; // 例: "2024年10月に〇〇へ移転"、"通常営業中"
   lastStatusCheckedAt?: string; // 営業状態確認日時 (ISO)
+
+  // 新機能: アカウント不要リアクションスタンプ
+  reactions?: Record<string, number>; // 例: { '❤️': 3, '😋': 2, '🥂': 1, '🔥': 4 }
+  userReactions?: string[]; // 自分が押したリアクションスタンプのキー配列
 }
 
 export type MainTab = 'list' | 'discover';

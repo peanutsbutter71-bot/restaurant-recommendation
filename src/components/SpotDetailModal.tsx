@@ -23,6 +23,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { RestaurantSpot } from '../types';
+import { ReactionStampsBar } from './ReactionStampsBar';
 import {
   formatJapaneseDate,
   getRelatedSpots,
@@ -39,10 +40,12 @@ interface SpotDetailModalProps {
   onSelectSpot: (spot: RestaurantSpot) => void;
   onToggleFavorite: (id: string) => void;
   onToggleVisited?: (id: string) => void;
-  onUpdateSpot?: (spot: RestaurantSpot) => void;
+  onSaveVisitedMemo?: (id: string, visitedAt: string, memo: string) => void;
+  onSavePrivateMemo?: (id: string, memo: string) => void;
   onEditSpot: (spot: RestaurantSpot) => void;
   onDeleteSpot: (id: string) => void;
   onShowToast: (message: string) => void;
+  onToggleReaction?: (spotId: string, emoji: string) => void;
   hidePrivateMemoMode?: boolean;
 }
 
@@ -345,9 +348,20 @@ export const SpotDetailModal: React.FC<SpotDetailModalProps> = ({
               </div>
 
               {/* Comment text */}
-              <p className="text-stone-800 text-sm leading-relaxed whitespace-pre-wrap font-normal">
+              <p className="text-stone-800 text-sm leading-relaxed whitespace-pre-wrap font-normal mb-3">
                 {spot.comment}
               </p>
+
+              {/* Social Reaction Stamps */}
+              {onToggleReaction && (
+                <div className="pt-2.5 border-t border-stone-200/80">
+                  <div className="text-[11px] font-bold text-stone-500 mb-1.5 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-[#2D4B3E]" />
+                    <span>リアクションスタンプ（アカウント不要）</span>
+                  </div>
+                  <ReactionStampsBar spot={spot} onToggleReaction={onToggleReaction} size="md" />
+                </div>
+              )}
             </div>
 
             {/* Visit Status & My Memo Section */}

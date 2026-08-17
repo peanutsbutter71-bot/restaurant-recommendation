@@ -452,6 +452,38 @@ export default function App() {
     }
   };
 
+  // Handler for Account-Free Reaction Stamps (❤️ 😋 🥂 🔥)
+  const handleToggleReaction = (spotId: string, emoji: string) => {
+    setSpots((prevSpots) =>
+      prevSpots.map((spot) => {
+        if (spot.id !== spotId) return spot;
+
+        const currentReactions = { ...(spot.reactions || {}) };
+        const currentUserReactions = [...(spot.userReactions || [])];
+        const isAlreadySelected = currentUserReactions.includes(emoji);
+
+        let newReactions = { ...currentReactions };
+        let newUserReactions = [...currentUserReactions];
+
+        if (isAlreadySelected) {
+          newReactions[emoji] = Math.max(0, (newReactions[emoji] || 1) - 1);
+          newUserReactions = newUserReactions.filter((e) => e !== emoji);
+          showToast(`「${emoji}」スタンプを取り消しました`);
+        } else {
+          newReactions[emoji] = (newReactions[emoji] || 0) + 1;
+          newUserReactions.push(emoji);
+          showToast(`「${emoji}」スタンプを押しました！✨`);
+        }
+
+        return {
+          ...spot,
+          reactions: newReactions,
+          userReactions: newUserReactions,
+        };
+      })
+    );
+  };
+
   // Toast notification helper
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -996,6 +1028,7 @@ export default function App() {
                       }}
                       onToggleFavorite={handleToggleFavorite}
                       onToggleVisited={handleToggleVisited}
+                      onToggleReaction={handleToggleReaction}
                     />
                   ))}
                 </div>
@@ -1012,6 +1045,7 @@ export default function App() {
                       }}
                       onToggleFavorite={handleToggleFavorite}
                       onToggleVisited={handleToggleVisited}
+                      onToggleReaction={handleToggleReaction}
                     />
                   ))}
                 </div>

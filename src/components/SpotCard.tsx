@@ -1,7 +1,10 @@
 import React from 'react';
 import { Heart, MapPin, Sparkles, ArrowUpRight, Check, Bookmark, Lock, FolderOpen } from 'lucide-react';
 import { RestaurantSpot } from '../types';
+import { ReactionStampsBar } from './ReactionStampsBar';
 import {
+  getGenreStyle,
+  getSceneStyle,
   PRICE_COLORS,
   generateRecommenderAvatar,
   getOptimizedImageUrl,
@@ -13,6 +16,7 @@ interface SpotCardProps {
   onSelect: (spot: RestaurantSpot) => void;
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   onToggleVisited?: (id: string, e: React.MouseEvent) => void;
+  onToggleReaction?: (spotId: string, emoji: string) => void;
 }
 
 export const SpotCard: React.FC<SpotCardProps> = ({
@@ -179,6 +183,13 @@ export const SpotCard: React.FC<SpotCardProps> = ({
               「{spot.comment}」
             </p>
           </div>
+
+          {/* Social Reaction Stamps */}
+          {onToggleReaction && (
+            <div className="mt-2.5 pt-2 border-t border-stone-100/80">
+              <ReactionStampsBar spot={spot} onToggleReaction={onToggleReaction} size="sm" />
+            </div>
+          )}
         </div>
 
         {/* Bottom Scene & Folder Meta */}
