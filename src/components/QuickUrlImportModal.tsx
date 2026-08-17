@@ -223,7 +223,7 @@ export const QuickUrlImportModal: React.FC<QuickUrlImportModalProps> = ({
               placeholder="例: 「このカフェ良さそう！ https://tabelog.com/...」 または Googleマップの共有リンク"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="w-full p-3 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm leading-relaxed text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-[#2D4B3E] transition-all resize-none"
+              className="w-full p-3 bg-white border border-stone-300 rounded-xl text-base sm:text-sm leading-relaxed text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-[#2D4B3E] transition-all resize-none"
             />
           </div>
 

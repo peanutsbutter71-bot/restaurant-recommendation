@@ -711,7 +711,7 @@ export default function App() {
   const favoriteCount = spots.filter((s) => s.isFavorite).length;
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-800 flex flex-col">
+    <div className="min-h-screen bg-[#FAF8F5] text-stone-800 flex flex-col pb-16 md:pb-0">
       {/* Sticky Header */}
       <Header
         spotCount={spots.length}
@@ -1209,6 +1209,64 @@ export default function App() {
         onClose={() => setCollabInvitePayload(null)}
         onJoinFolder={handleJoinCollabFolder}
       />
+
+      {/* Mobile Sticky Bottom Thumb Navigation Bar (親指操作ボトムナビ) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-lg px-2 py-1.5 pb-[calc(0.5rem+env(safe-area-inset-bottom))] flex items-center justify-around">
+        <button
+          type="button"
+          onClick={() => setMainTab('list')}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+            mainTab === 'list' ? 'text-[#2D4B3E]' : 'text-stone-500'
+          }`}
+        >
+          <ListFilter className="w-4 h-4" />
+          <span>一覧</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMainTab('discover')}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-[10px] font-bold transition-all cursor-pointer ${
+            mainTab === 'discover' ? 'text-[#2D4B3E]' : 'text-stone-500'
+          }`}
+        >
+          <Flame className="w-4 h-4 text-orange-500" />
+          <span>発見</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setQuickImportInitialText('');
+            setIsQuickImportOpen(true);
+          }}
+          className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-[10px] font-bold text-[#2D4B3E] cursor-pointer"
+        >
+          <Camera className="w-4 h-4" />
+          <span>AI解析</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setEditingSpot(null);
+            setIsAddModalOpen(true);
+          }}
+          className="flex flex-col items-center gap-0.5 px-3.5 py-1 rounded-xl text-[10px] font-bold bg-[#2D4B3E] text-white shadow-xs cursor-pointer active:scale-95"
+        >
+          <Plus className="w-4 h-4 text-emerald-200" />
+          <span>＋記録</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsMyPageOpen(true)}
+          className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl text-[10px] font-bold text-stone-500 hover:text-stone-900 cursor-pointer"
+        >
+          <User className="w-4 h-4" />
+          <span>手帳</span>
+        </button>
+      </div>
 
       {/* Toast Feedback */}
       {toastMessage && <Toast message={toastMessage} />}

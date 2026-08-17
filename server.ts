@@ -64,6 +64,10 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Simple In-Memory LRU Cache for AI URL Parsing (0 API cost for duplicate URLs)
+  const urlParseCache = new Map<string, { data: any; timestamp: number }>();
+  const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
   // Parse Shared URL/Text API endpoint (Web Share Target & Quick URL Import & Bulk Import)
   app.post('/api/spots/parse-share-url', apiRateLimiter, async (req, res) => {
     const { rawInput, title, text, url } = req.body;
@@ -88,6 +92,17 @@ async function startServer() {
     const isGoogleMaps = extractedUrl.includes('google.com/maps') || extractedUrl.includes('maps.app.goo.gl');
     const isTabelog = extractedUrl.includes('tabelog.com');
     const isInstagram = extractedUrl.includes('instagram.com');
+
+    // Check Cache
+    const cacheKey = (extractedUrl || inputContent).trim();
+    if (cacheKey && urlParseCache.has(cacheKey)) {
+      const cached = urlParseCache.get(cacheKey)!;
+      if (Date.now() - cached.timestamp < CACHE_TTL_MS) {
+        console.log('⚡ Serving AI parse result from server cache for:', cacheKey);
+        return res.json(cached.data);
+      }
+      urlParseCache.delete(cacheKey);
+    }
 
     if (!apiKey) {
       // Fallback extraction without Gemini API
@@ -239,7 +254,7 @@ ${inputContent}
         mapUrl: isGoogleMaps ? extractedUrl : undefined,
       };
 
-      return res.json({
+      const responseData = {
         spot: firstSpot,
         spots: formattedSpots,
         isList: parsedResult.isList || formattedSpots.length > 1,
@@ -250,7 +265,13 @@ ${inputContent}
           formattedSpots.length > 1
             ? `✨ Googleマップリストから ${formattedSpots.length}軒 のお店を自動抽出しました！`
             : '✨ AIが店舗情報を解析しました！',
-      });
+      };
+
+      if (cacheKey && responseData.isAiParsed) {
+        urlParseCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+      }
+
+      return res.json(responseData);
     } catch (err: any) {
       console.error('Error during AI share parse:', err);
       return res.status(500).json({
