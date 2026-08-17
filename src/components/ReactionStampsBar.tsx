@@ -9,9 +9,6 @@ interface ReactionStampsBarProps {
 
 export const REACTION_STAMPS = [
   { emoji: '❤️', label: '行きたい' },
-  { emoji: '😋', label: '美味しそう' },
-  { emoji: '🥂', label: '行こう！' },
-  { emoji: '🔥', label: '気になる' },
 ];
 
 export const ReactionStampsBar: React.FC<ReactionStampsBarProps> = ({
