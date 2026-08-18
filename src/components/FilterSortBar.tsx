@@ -246,13 +246,26 @@ export const FilterSortBar: React.FC<FilterSortBarProps> = ({
           </div>
         </div>
 
-        {/* Match Count Indicator */}
-        <div className="text-xs text-stone-500 font-medium flex items-center gap-1.5 ml-auto">
-          <span>表示:</span>
-          <span className="font-bold text-stone-900 text-sm">
-            {totalResultsCount}
-          </span>
-          <span className="text-stone-400">/ 全{allCount}件</span>
+        {/* Match Count & Clear All Filters Button */}
+        <div className="flex items-center gap-2 ml-auto">
+          {activeFilterCount > 0 && (
+            <button
+              type="button"
+              onClick={onResetFilters}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#E8ECE8] hover:bg-[#D5E0D5] text-[#2D4B3E] text-xs font-bold transition-all cursor-pointer border border-[#C5D8C5] active:scale-95"
+              title="選択中の絞り込み・検索条件をクリア"
+            >
+              <RotateCcw className="w-3 h-3 text-[#2D4B3E]" />
+              <span>リセット ({activeFilterCount})</span>
+            </button>
+          )}
+          <div className="text-xs text-stone-500 font-medium flex items-center gap-1">
+            <span>表示:</span>
+            <span className="font-bold text-stone-900 text-sm">
+              {totalResultsCount}
+            </span>
+            <span className="text-stone-400">/ 全{allCount}件</span>
+          </div>
         </div>
       </div>
 
