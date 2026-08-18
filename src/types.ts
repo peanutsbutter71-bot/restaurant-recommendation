@@ -130,6 +130,12 @@ export const COMMON_AREAS = [
   '池袋',
   '六本木',
   '横浜',
+  '鎌倉',
+  '大阪・梅田',
+  '京都',
+  '福岡・博多',
+  '札幌',
+  '沖縄',
 ];
 
 export const COMMON_GENRES = [
