@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { handleCheckStatus } from '../_lib/spotHandlers';
+import { handleCheckStatus } from '../_lib/spotHandlers.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

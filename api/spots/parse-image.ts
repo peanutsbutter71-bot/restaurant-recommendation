@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { checkRateLimit, getClientIp } from '../_lib/rateLimit';
-import { handleParseImage } from '../_lib/spotHandlers';
+import { checkRateLimit, getClientIp } from '../_lib/rateLimit.js';
+import { handleParseImage } from '../_lib/spotHandlers.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
