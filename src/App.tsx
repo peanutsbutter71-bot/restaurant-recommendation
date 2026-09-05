@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   RestaurantSpot,
   FilterState,
@@ -32,13 +32,10 @@ import { parseCollabFolderInviteUrl, CollabFolderInvitePayload } from './utils/c
 import { UserNameSetupModal } from './components/UserNameSetupModal';
 import { TutorialHelpModal } from './components/TutorialHelpModal';
 import {
-  getGroupCodeFromUrlOrStorage,
   getUserName,
   setUserName,
-  fetchGroupCloudData,
-  syncGroupCloudData,
-  deleteSpotFromCloudGroup,
 } from './utils/groupSync';
+import { subscribeToSharedSpots, publishNewSpotToSharedDb } from './utils/firebaseClient';
 import {
   saveSpotsToIndexedDb,
   loadSpotsFromIndexedDb,
@@ -79,6 +76,7 @@ const FOLDERS_STORAGE_KEY = 'gourmet_share_folders_v1';
 const PRIVACY_STORAGE_KEY = 'gourmet_share_hide_private_v1';
 const PREFERENCES_STORAGE_KEY = 'gourmet_share_preferences_v1';
 const MAIN_TAB_STORAGE_KEY = 'gourmet_share_main_tab_v1';
+const HIDDEN_SPOT_IDS_STORAGE_KEY = 'gourmet_share_hidden_spot_ids_v1';
 
 const DEFAULT_FOLDERS: CustomFolder[] = [
   { id: 'f-date', name: 'デート・記念日', color: '#f43f5e', createdAt: '2025-01-01' },
@@ -315,62 +313,94 @@ export default function App() {
     }
   };
 
-  // Group Cloud Sync State (0% Account Registration)
-  const [groupCode, setGroupCodeState] = useState<string>(() => getGroupCodeFromUrlOrStorage());
+  // User Name (0% Account Registration nickname, purely local)
   const [currentUserName, setCurrentUserNameState] = useState<string | null>(() => getUserName());
   const [isNameSetupOpen, setIsNameSetupOpen] = useState<boolean>(() => !getUserName());
-  const [groupMembers, setGroupMembers] = useState<string[]>([]);
 
   const handleSaveUserName = (name: string) => {
     setUserName(name);
     setCurrentUserNameState(name);
     setIsNameSetupOpen(false);
     showToast(`✨ 「${name}」として手帳に参加しました！`);
-    // Initial Sync
-    syncGroupCloudData(groupCode, spots, folders, name).then((res) => {
-      if (res) {
-        if (res.spots && res.spots.length > 0) setSpots(res.spots);
-        if (res.members) setGroupMembers(res.members);
-      }
-    });
   };
 
-  // Background Cloud Sync on startup & periodic 8s poll
+  // Spot ids the user has removed from their own view. Firestore's shared
+  // "spots" collection is create-only (no update/delete allowed by the
+  // security rules), so a locally-deleted spot would otherwise reappear on
+  // the next real-time snapshot; this list keeps it hidden for this device.
+  const [hiddenSpotIds, setHiddenSpotIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(HIDDEN_SPOT_IDS_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const hiddenSpotIdsRef = useRef(hiddenSpotIds);
   useEffect(() => {
-    const code = getGroupCodeFromUrlOrStorage();
-    setGroupCodeState(code);
+    hiddenSpotIdsRef.current = hiddenSpotIds;
+    try {
+      localStorage.setItem(HIDDEN_SPOT_IDS_STORAGE_KEY, JSON.stringify(hiddenSpotIds));
+    } catch {
+      // ignore
+    }
+  }, [hiddenSpotIds]);
 
-    const pullCloudData = () => {
-      fetchGroupCloudData(code).then((res) => {
-        if (res) {
-          if (res.members) setGroupMembers(res.members);
-          if (res.spots && res.spots.length > 0) {
-            setSpots((prev) => {
-              const map = new Map<string, RestaurantSpot>();
-              for (const s of prev) map.set(s.id, s);
-              for (const s of res.spots) map.set(s.id, s);
-              return Array.from(map.values());
+  // Real-time shared database: everyone who opens the app reads/writes the
+  // same Firestore "spots" collection directly from the browser (no login,
+  // no backend server). Shared fields (name, area, genres, comment, etc.)
+  // come from Firestore; personal fields (favorites, visited, private memo,
+  // reactions) are preserved from local state and never sent to Firestore.
+  useEffect(() => {
+    const unsubscribe = subscribeToSharedSpots((sharedSpots) => {
+      setSpots((prev) => {
+        const prevById = new Map<string, RestaurantSpot>(prev.map((s) => [s.id, s]));
+        const seenIds = new Set<string>();
+        const merged: RestaurantSpot[] = [];
+
+        for (const shared of sharedSpots) {
+          if (hiddenSpotIdsRef.current.includes(shared.id)) continue;
+          seenIds.add(shared.id);
+          const existing = prevById.get(shared.id);
+          const sharedFields = {
+            name: shared.name,
+            area: shared.area,
+            nearestStation: shared.nearestStation,
+            genres: shared.genres,
+            priceRange: shared.priceRange,
+            scenes: shared.scenes,
+            recommender: shared.recommender,
+            comment: shared.comment,
+            mapUrl: shared.mapUrl,
+            tabelogUrl: shared.tabelogUrl,
+            imageUrl: shared.imageUrl,
+            highlightDish: shared.highlightDish,
+          };
+          if (existing) {
+            merged.push({ ...existing, ...sharedFields });
+          } else {
+            merged.push({
+              id: shared.id,
+              ...sharedFields,
+              createdAt: shared.createdAt,
+              isFavorite: false,
+              isVisited: false,
             });
           }
         }
-      });
-    };
 
-    pullCloudData();
-    const interval = setInterval(pullCloudData, 8000);
-    return () => clearInterval(interval);
-  }, [groupCode]);
-
-  // Sync to Cloud whenever spots or folders change
-  useEffect(() => {
-    if (spots.length > 0 || folders.length > 0) {
-      syncGroupCloudData(groupCode, spots, folders, currentUserName || undefined).then((res) => {
-        if (res && res.members) {
-          setGroupMembers(res.members);
+        // Keep local-only spots not yet reflected in this Firestore snapshot
+        // (e.g. just added while offline).
+        for (const p of prev) {
+          if (!seenIds.has(p.id)) merged.push(p);
         }
+
+        return merged;
       });
-    }
-  }, [spots, folders, groupCode, currentUserName]);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Load IndexedDB backup asynchronously on startup if available
   useEffect(() => {
@@ -687,6 +717,8 @@ export default function App() {
         : (currentUserName || '身内メンバー'),
     };
 
+    const isNewSpot = !spots.some((s) => s.id === finalSpot.id);
+
     setSpots((prev) => {
       const exists = prev.some((s) => s.id === finalSpot.id);
       if (exists) {
@@ -695,8 +727,12 @@ export default function App() {
       return [finalSpot, ...prev];
     });
 
-    // Cloud sync
-    syncGroupCloudData(groupCode, [finalSpot], folders, currentUserName || undefined);
+    // Publish brand-new spots to the shared Firestore database so every
+    // visitor sees them. Firestore rules only allow creating new documents
+    // (no update/delete), so edits to an already-shared spot stay local only.
+    if (isNewSpot) {
+      publishNewSpotToSharedDb(finalSpot);
+    }
 
     setIsAddModalOpen(false);
     setEditingSpot(null);
@@ -704,11 +740,12 @@ export default function App() {
     showToast(editingSpot ? 'お店情報を更新しました✨' : '新しいお店を記録しました🎉');
   };
 
-  // Delete spot
+  // Delete spot (removes it from this device's view only — the shared
+  // Firestore database is create-only, so it stays visible to others)
   const handleDeleteSpot = (id: string) => {
     const spotToDelete = spots.find((s) => s.id === id);
     setSpots((prev) => prev.filter((s) => s.id !== id));
-    deleteSpotFromCloudGroup(groupCode, id);
+    setHiddenSpotIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
     setSelectedSpot(null);
     showToast(`「${spotToDelete?.name || 'お店'}」を削除しました`);
   };
@@ -877,19 +914,11 @@ export default function App() {
         </main>
       ) : (
         <main className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-7 flex-1 w-full space-y-5 animate-in fade-in duration-200">
-          {/* Active Group Cloud Sync Status Bar */}
+          {/* Shared Firestore Sync Status Bar */}
           <div className="bg-[#2D4B3E] text-white px-4 py-2.5 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-xs text-xs">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-extrabold">🤝 身内全員リアルタイム共有中</span>
-              <span className="text-[10px] bg-emerald-950/60 text-emerald-200 px-2 py-0.5 rounded-md font-mono">
-                {groupCode}
-              </span>
-              {groupMembers.length > 0 && (
-                <span className="text-[10px] bg-emerald-800 text-white px-1.5 py-0.5 rounded-md font-semibold">
-                  👥 メンバー: {groupMembers.join(', ')}
-                </span>
-              )}
+              <span className="font-extrabold">🤝 みんなのおすすめをリアルタイム共有中</span>
             </div>
             <div className="flex items-center gap-2 text-[11px]">
               <span className="text-emerald-100/90 font-medium">
