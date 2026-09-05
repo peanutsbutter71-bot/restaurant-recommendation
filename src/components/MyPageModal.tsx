@@ -924,7 +924,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                 </p>
 
                 <a
-                  href="https://docs.google.com/forms"
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSfeBZI6f9TbN7ecmH2vHE-69-X66_Y_RZlojpiOoe2mnroUkw/viewform"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-3 px-4 rounded-xl bg-[#2D4B3E] hover:bg-[#233B31] text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-md transition-all active:scale-98 cursor-pointer"

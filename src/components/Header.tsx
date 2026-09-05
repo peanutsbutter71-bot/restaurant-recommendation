@@ -1,5 +1,5 @@
 import React from 'react';
-import { UtensilsCrossed, Plus, Dices, Heart, Share2, User, ListFilter, Flame, Layers, HelpCircle, MessageSquare } from 'lucide-react';
+import { UtensilsCrossed, Plus, Dices, Heart, Share2, User, ListFilter, Flame, Layers, HelpCircle, MessageSquare, Send } from 'lucide-react';
 import { MainTab } from '../types';
 
 interface HeaderProps {
@@ -31,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenBulkImport,
   onOpenRandomModal,
   onOpenMyPage,
+  onOpenShareAppModal,
   onOpenTutorial,
   onOpenNameSetup,
   onOpenFeedback,
@@ -193,6 +194,19 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <MessageSquare className="w-3.5 h-3.5 text-amber-700" />
                 <span className="hidden lg:inline font-bold">ご意見・FB</span>
+              </button>
+            )}
+
+            {/* Share App Button */}
+            {onOpenShareAppModal && (
+              <button
+                id="header-share-app-btn"
+                onClick={onOpenShareAppModal}
+                className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium text-stone-700 hover:text-stone-900 hover:bg-stone-100 border border-stone-200 transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap"
+                title="アプリを友達にシェア"
+              >
+                <Send className="w-4 h-4 text-stone-600" />
+                <span className="hidden xl:inline">友達にシェア</span>
               </button>
             )}
 

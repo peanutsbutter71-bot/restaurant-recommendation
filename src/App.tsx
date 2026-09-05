@@ -862,7 +862,7 @@ export default function App() {
         onOpenShareAppModal={() => setIsShareAppModalOpen(true)}
         onOpenTutorial={() => setIsTutorialOpen(true)}
         onOpenNameSetup={() => setIsNameSetupOpen(true)}
-        onOpenFeedback={() => window.open('https://docs.google.com/forms', '_blank')}
+        onOpenFeedback={() => window.open('https://docs.google.com/forms/d/e/1FAIpQLSfeBZI6f9TbN7ecmH2vHE-69-X66_Y_RZlojpiOoe2mnroUkw/viewform', '_blank')}
         currentUserName={currentUserName}
         favoritesOnly={filters.favoritesOnly}
         onToggleFavoritesOnly={() =>
