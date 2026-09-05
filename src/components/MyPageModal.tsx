@@ -23,8 +23,11 @@ import {
   RotateCcw,
   ShieldCheck,
   FileJson,
-  MessageSquare,
+  Copy,
+  Check,
   Share2,
+  MessageSquare,
+  ExternalLink,
 } from 'lucide-react';
 import { RestaurantSpot, CustomFolder, PriceRange, Scene } from '../types';
 import { downloadJsonBackup, parseBackupFile } from '../utils/backupHelper';
@@ -331,6 +334,19 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
           >
             <Lock className="w-3.5 h-3.5" />
             <span>プライバシー</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('feedback')}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-t-lg text-xs font-semibold transition-all border-b-2 cursor-pointer whitespace-nowrap ${
+              activeTab === 'feedback'
+                ? 'border-[#2D4B3E] text-[#2D4B3E] bg-white shadow-2xs font-bold'
+                : 'border-transparent text-stone-500 hover:text-stone-900'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-[#2D4B3E]" />
+            <span>💬 ご意見・FB</span>
           </button>
         </div>
 
@@ -881,6 +897,41 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: FEEDBACK */}
+          {activeTab === 'feedback' && (
+            <div className="space-y-6 animate-in fade-in duration-150">
+              <div className="bg-[#E8ECE8]/60 p-5 rounded-2xl border border-[#C5D8C5] space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-[#2D4B3E] text-emerald-200 flex items-center justify-center shadow-2xs">
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold text-stone-900">
+                      ご意見・改善リクエスト・バグ報告 💬
+                    </h3>
+                    <p className="text-xs text-stone-500">
+                      「こんな機能がほしい！」「ここが使いづらい」など、あなたの声を教えてください。
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  いただいたご意見は1枚のスプレッドシートに自動集約され、メール通知で即座に開発者へ届きます。メアド入力は一切不要です！
+                </p>
+
+                <a
+                  href="https://docs.google.com/forms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 px-4 rounded-xl bg-[#2D4B3E] hover:bg-[#233B31] text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-md transition-all active:scale-98 cursor-pointer"
+                >
+                  <span>💬 フィードバックフォーム（Googleフォーム）を開く</span>
+                  <ExternalLink className="w-4 h-4 text-emerald-200" />
+                </a>
               </div>
             </div>
           )}
