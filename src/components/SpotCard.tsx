@@ -24,6 +24,7 @@ export const SpotCard: React.FC<SpotCardProps> = ({
   onSelect,
   onToggleFavorite,
   onToggleVisited,
+  onToggleReaction,
 }) => {
   const avatar = generateRecommenderAvatar(spot.recommender);
   const statusBadge = getOperatingStatusBadge(spot.operatingStatus);

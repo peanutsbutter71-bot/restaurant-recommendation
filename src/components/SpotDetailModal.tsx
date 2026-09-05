@@ -60,6 +60,7 @@ export const SpotDetailModal: React.FC<SpotDetailModalProps> = ({
   onEditSpot,
   onDeleteSpot,
   onShowToast,
+  onToggleReaction,
   hidePrivateMemoMode = false,
 }) => {
   const [copied, setCopied] = useState(false);

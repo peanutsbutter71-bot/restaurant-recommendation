@@ -71,6 +71,9 @@ import {
   Clipboard,
   Utensils,
   Flame,
+  Camera,
+  ListFilter,
+  User,
 } from 'lucide-react';
 
 const LOCAL_STORAGE_KEY = 'gourmet_share_spots_v1';
