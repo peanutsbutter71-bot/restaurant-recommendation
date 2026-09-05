@@ -31,6 +31,10 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenBulkImport,
   onOpenRandomModal,
   onOpenMyPage,
+  onOpenTutorial,
+  onOpenNameSetup,
+  onOpenFeedback,
+  currentUserName,
   favoritesOnly,
   onToggleFavoritesOnly,
 }) => {
