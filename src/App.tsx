@@ -1011,10 +1011,9 @@ export default function App() {
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Filter & Sort Controls */}
-        <FilterSortBar
+          {/* Filter & Sort Controls */}
+          <FilterSortBar
           filters={filters}
           onFilterChange={setFilters}
           onResetFilters={handleResetFilters}

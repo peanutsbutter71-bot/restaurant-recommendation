@@ -15,12 +15,16 @@ function copyDir(src, dest) {
   }
 }
 
-copyDir('dist', 'public');
+// Only mirror the build output into build/ (gitignored) for manual GitHub Pages
+// publishing (e.g. `npx gh-pages -d build`).
+//
+// IMPORTANT: never copy dist/ into the project root or into public/. Root
+// index.html is Vite's build entry (it must keep pointing at /src/main.tsx),
+// and everything under public/ is copied verbatim into dist/ by Vite itself.
+// Writing built, already-hashed output back into either location corrupts the
+// next `vite build`: Vite re-hashes the already-hashed files it finds there,
+// and index.html stops pointing at the real source, so subsequent builds
+// silently stop picking up any source changes. This happened before and
+// produced filenames like manifest-CVAYuTDy-CVAYuTDy-CVAYuTDy....json.
 copyDir('dist', 'build');
-if (fs.existsSync('dist/index.html')) {
-  fs.copyFileSync('dist/index.html', 'index.html');
-}
-if (fs.existsSync('dist/assets')) {
-  copyDir('dist/assets', 'assets');
-}
-console.log('Build outputs synced to root, public, and build folders for GitHub Pages & Vercel!');
+console.log('Build output synced to build/ for GitHub Pages.');
