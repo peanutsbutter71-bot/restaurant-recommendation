@@ -30,6 +30,15 @@ import { StarterPack } from './data/starterPacks';
 import { Toast } from './components/Toast';
 import { CollabFolderInviteModal } from './components/CollabFolderInviteModal';
 import { parseCollabFolderInviteUrl, CollabFolderInvitePayload } from './utils/collabFolderHelper';
+import { UserNameSetupModal } from './components/UserNameSetupModal';
+import {
+  getGroupCodeFromUrlOrStorage,
+  getUserName,
+  setUserName,
+  fetchGroupCloudData,
+  syncGroupCloudData,
+  deleteSpotFromCloudGroup,
+} from './utils/groupSync';
 import {
   saveSpotsToIndexedDb,
   loadSpotsFromIndexedDb,
@@ -293,6 +302,63 @@ export default function App() {
   // Inline Quick Import input in hero/banner
   const [heroInputUrl, setHeroInputUrl] = useState('');
   const [isHeroAnalyzing, setIsHeroAnalyzing] = useState(false);
+
+  // Group Cloud Sync State (0% Account Registration)
+  const [groupCode, setGroupCodeState] = useState<string>(() => getGroupCodeFromUrlOrStorage());
+  const [currentUserName, setCurrentUserNameState] = useState<string | null>(() => getUserName());
+  const [isNameSetupOpen, setIsNameSetupOpen] = useState<boolean>(() => !getUserName());
+  const [groupMembers, setGroupMembers] = useState<string[]>([]);
+
+  const handleSaveUserName = (name: string) => {
+    setUserName(name);
+    setCurrentUserNameState(name);
+    setIsNameSetupOpen(false);
+    showToast(`✨ 「${name}」として手帳に参加しました！`);
+    // Initial Sync
+    syncGroupCloudData(groupCode, spots, folders, name).then((res) => {
+      if (res) {
+        if (res.spots && res.spots.length > 0) setSpots(res.spots);
+        if (res.members) setGroupMembers(res.members);
+      }
+    });
+  };
+
+  // Background Cloud Sync on startup & periodic 8s poll
+  useEffect(() => {
+    const code = getGroupCodeFromUrlOrStorage();
+    setGroupCodeState(code);
+
+    const pullCloudData = () => {
+      fetchGroupCloudData(code).then((res) => {
+        if (res) {
+          if (res.members) setGroupMembers(res.members);
+          if (res.spots && res.spots.length > 0) {
+            setSpots((prev) => {
+              const map = new Map<string, RestaurantSpot>();
+              for (const s of prev) map.set(s.id, s);
+              for (const s of res.spots) map.set(s.id, s);
+              return Array.from(map.values());
+            });
+          }
+        }
+      });
+    };
+
+    pullCloudData();
+    const interval = setInterval(pullCloudData, 8000);
+    return () => clearInterval(interval);
+  }, [groupCode]);
+
+  // Sync to Cloud whenever spots or folders change
+  useEffect(() => {
+    if (spots.length > 0 || folders.length > 0) {
+      syncGroupCloudData(groupCode, spots, folders, currentUserName || undefined).then((res) => {
+        if (res && res.members) {
+          setGroupMembers(res.members);
+        }
+      });
+    }
+  }, [spots, folders, groupCode, currentUserName]);
 
   // Load IndexedDB backup asynchronously on startup if available
   useEffect(() => {
@@ -601,18 +667,28 @@ export default function App() {
   };
 
   // Save new spot or update existing spot
-  const handleSaveSpot = (newSpot: RestaurantSpot) => {
+  const handleSaveSpot = (spotData: RestaurantSpot) => {
+    const finalSpot: RestaurantSpot = {
+      ...spotData,
+      recommender: spotData.recommender && spotData.recommender.trim() !== ''
+        ? spotData.recommender
+        : (currentUserName || '身内メンバー'),
+    };
+
     setSpots((prev) => {
-      const exists = prev.some((s) => s.id === newSpot.id);
+      const exists = prev.some((s) => s.id === finalSpot.id);
       if (exists) {
-        return prev.map((s) => (s.id === newSpot.id ? newSpot : s));
+        return prev.map((s) => (s.id === finalSpot.id ? finalSpot : s));
       }
-      return [newSpot, ...prev];
+      return [finalSpot, ...prev];
     });
+
+    // Cloud sync
+    syncGroupCloudData(groupCode, [finalSpot], folders, currentUserName || undefined);
 
     setIsAddModalOpen(false);
     setEditingSpot(null);
-    setSelectedSpot(newSpot);
+    setSelectedSpot(finalSpot);
     showToast(editingSpot ? 'お店情報を更新しました✨' : '新しいお店を記録しました🎉');
   };
 
@@ -620,6 +696,7 @@ export default function App() {
   const handleDeleteSpot = (id: string) => {
     const spotToDelete = spots.find((s) => s.id === id);
     setSpots((prev) => prev.filter((s) => s.id !== id));
+    deleteSpotFromCloudGroup(groupCode, id);
     setSelectedSpot(null);
     showToast(`「${spotToDelete?.name || 'お店'}」を削除しました`);
   };
@@ -784,6 +861,34 @@ export default function App() {
         </main>
       ) : (
         <main className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-7 flex-1 w-full space-y-5 animate-in fade-in duration-200">
+          {/* Active Group Cloud Sync Status Bar */}
+          <div className="bg-[#2D4B3E] text-white px-4 py-2.5 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-xs text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-extrabold">🤝 身内全員リアルタイム共有中</span>
+              <span className="text-[10px] bg-emerald-950/60 text-emerald-200 px-2 py-0.5 rounded-md font-mono">
+                {groupCode}
+              </span>
+              {groupMembers.length > 0 && (
+                <span className="text-[10px] bg-emerald-800 text-white px-1.5 py-0.5 rounded-md font-semibold">
+                  👥 メンバー: {groupMembers.join(', ')}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-[11px]">
+              <span className="text-emerald-100/90 font-medium">
+                あなたの名前: <strong className="text-white underline">{currentUserName || '未設定'}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsNameSetupOpen(true)}
+                className="px-2 py-0.5 rounded-md bg-white/20 hover:bg-white/30 text-white font-bold transition-all cursor-pointer text-[10px]"
+              >
+                変更
+              </button>
+            </div>
+          </div>
+
           {/* Quick URL / Share Import Hero Bar */}
           <div className="bg-[#E8ECE8]/50 p-4 sm:p-5 rounded-3xl border border-[#C5D8C5] shadow-2xs space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1301,6 +1406,12 @@ export default function App() {
           <span>手帳</span>
         </button>
       </div>
+
+      {/* Instant 0% Account User Name Setup Modal */}
+      <UserNameSetupModal
+        isOpen={isNameSetupOpen}
+        onSaveName={handleSaveUserName}
+      />
 
       {/* Toast Feedback */}
       {toastMessage && <Toast message={toastMessage} />}
