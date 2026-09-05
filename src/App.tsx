@@ -166,7 +166,7 @@ export default function App() {
   });
 
   // View mode: 'both' (Map + Grid/List), 'grid' (List/Cards only), 'map' (Map focused)
-  const [viewMode, setViewMode] = useState<'both' | 'grid' | 'map'>('both');
+  const [viewMode, setViewMode] = useState<'both' | 'grid' | 'map'>('grid');
   
   // Card Display Mode: 'list' (コンパクトリスト) vs 'card' (大カード写真重視)
   const [cardDisplayMode, setCardDisplayMode] = useState<'list' | 'card'>(() => {
