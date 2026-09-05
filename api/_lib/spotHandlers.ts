@@ -20,8 +20,38 @@ export interface LinkCandidate {
   confidence: 'high' | 'medium' | 'low';
 }
 
-// Helper: Auto-expand Google Maps short URL and extract HTML title
-async function fetchStoreMetadataFromUrl(rawUrl: string): Promise<{ title?: string; expandedUrl?: string }> {
+// Extracts the value of a standard Open Graph / meta tag (e.g. og:title,
+// og:description, og:image) via a plain regex over the raw HTML. These tags
+// are metadata that sites publish specifically so external tools (LINE,
+// Twitter, Slack link previews, etc.) can show a preview - reading them is
+// not scraping the page's internal structure, just standard, publicly
+// intended metadata, so it carries none of the ToS risk that parsing a
+// site's actual page markup for e.g. price/reviews would.
+function extractMetaTagContent(html: string, property: string): string | undefined {
+  const tagMatch = html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${property}["'][^>]*>`, 'i'));
+  if (!tagMatch) return undefined;
+  const contentMatch = tagMatch[0].match(/content=["']([^"']*)["']/i);
+  if (!contentMatch) return undefined;
+  const decoded = decodeHtmlEntities(contentMatch[1]).trim();
+  return decoded || undefined;
+}
+
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
+
+// Helper: Auto-expand Google Maps short URL and extract the page's title +
+// Open Graph metadata (name/description/image), so callers can build a
+// useful spot without necessarily needing an AI web-search call at all.
+async function fetchStoreMetadataFromUrl(
+  rawUrl: string
+): Promise<{ title?: string; expandedUrl?: string; ogDescription?: string; ogImage?: string }> {
   try {
     const res = await fetch(rawUrl, {
       redirect: 'follow',
@@ -33,16 +63,22 @@ async function fetchStoreMetadataFromUrl(rawUrl: string): Promise<{ title?: stri
     });
     const expandedUrl = res.url || rawUrl;
     const htmlText = await res.text();
+
+    const ogTitle = extractMetaTagContent(htmlText, 'og:title');
     const titleMatch = htmlText.match(/<title[^>]*>([^<]+)<\/title>/i);
-    let title = titleMatch ? titleMatch[1].trim() : undefined;
+    let title = ogTitle || (titleMatch ? titleMatch[1].trim() : undefined);
     if (title) {
       title = title
         .replace(/\s*-\s*Google\s*マップ.*/i, '')
         .replace(/\s*-\s*Google\s*Maps.*/i, '')
-        .replace(/食べログ.*/i, '')
+        .replace(/\s*[-|｜]\s*食べログ.*/i, '')
         .trim();
     }
-    return { title, expandedUrl };
+
+    const ogDescription = extractMetaTagContent(htmlText, 'og:description');
+    const ogImage = extractMetaTagContent(htmlText, 'og:image');
+
+    return { title, expandedUrl, ogDescription, ogImage };
   } catch (e) {
     return { expandedUrl: rawUrl };
   }
@@ -73,12 +109,16 @@ export async function handleParseShareUrl(body: any): Promise<HandlerResult> {
   const isTabelog = extractedUrl.includes('tabelog.com');
 
   let fetchedTitle = '';
+  let ogDescription = '';
+  let ogImage = '';
   let expandedUrl = extractedUrl;
   if (extractedUrl && (isGoogleMaps || isTabelog)) {
     try {
       const metadata = await fetchStoreMetadataFromUrl(extractedUrl);
       if (metadata.title) fetchedTitle = metadata.title;
       if (metadata.expandedUrl) expandedUrl = metadata.expandedUrl;
+      if (metadata.ogDescription) ogDescription = metadata.ogDescription;
+      if (metadata.ogImage) ogImage = metadata.ogImage;
     } catch (e) {
       console.warn('Metadata fetch failed:', e);
     }
@@ -94,10 +134,10 @@ export async function handleParseShareUrl(body: any): Promise<HandlerResult> {
     urlParseCache.delete(cacheKey);
   }
 
-  if (!apiKey) {
-    let fallbackName = fetchedTitle || title || '気になるお店';
-    let fallbackArea = '表参道';
+  const sourceLabel = isTabelog ? '食べログ共有' : isGoogleMaps ? 'Googleマップ共有' : '共有リンク';
 
+  function buildOgpOnlyFallback(): HandlerResult {
+    let fallbackArea = '表参道';
     if (fetchedTitle) {
       const areaMatches = ['表参道', '渋谷', '新宿', '恵比寿', '中目黒', '銀座', '池袋', '六本木', '高田馬場', '下北沢', '横浜', '京都', '大阪', '鎌倉', '福岡', '札幌', '沖縄'];
       const matched = areaMatches.find((a) => fetchedTitle.includes(a));
@@ -108,15 +148,16 @@ export async function handleParseShareUrl(body: any): Promise<HandlerResult> {
       status: 200,
       body: {
         spot: {
-          name: fallbackName,
+          name: fetchedTitle || title || '気になるお店',
           area: fallbackArea,
           genres: ['カフェ・喫茶'],
           scenes: ['友達・同僚と'],
           priceRange: '1000〜3000円',
-          recommender: '共有リンク',
-          comment: `共有リンクから追加: ${inputContent.slice(0, 100)}`,
+          recommender: sourceLabel,
+          comment: ogDescription ? ogDescription.slice(0, 150) : `共有リンクから追加: ${inputContent.slice(0, 100)}`,
           mapUrl: isGoogleMaps ? expandedUrl : undefined,
           tabelogUrl: isTabelog ? expandedUrl : undefined,
+          imageUrl: ogImage || undefined,
         },
         sourceUrl: expandedUrl,
         isAiParsed: !!fetchedTitle,
@@ -125,6 +166,100 @@ export async function handleParseShareUrl(body: any): Promise<HandlerResult> {
     };
   }
 
+  if (!apiKey) {
+    return buildOgpOnlyFallback();
+  }
+
+  // Tier 1: we already have the real page's title (and often a description)
+  // via Open Graph tags fetched above with a plain HTTP request - no Gemini
+  // needed for that part. Ask Gemini only to classify genre/area/scenes/price
+  // from this already-known real content, WITHOUT the googleSearch tool,
+  // since there's nothing left to search for. This avoids the separately
+  // (and more strictly) rate-limited search-grounding quota entirely for the
+  // common case of a single resolved Tabelog/Google Maps place page.
+  if (fetchedTitle) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const classifyPrompt = `あなたは日本のグルメジャンル分類の専門家です。
+以下は実際に取得した店舗ページの情報です。Web検索は不要です。この内容だけをもとに、飲食店登録用の分類情報をJSON形式で出力してください。
+
+【店舗ページ情報】
+店名: ${fetchedTitle}
+${ogDescription ? `説明文: ${ogDescription}\n` : ''}参考URL: ${expandedUrl}
+
+【分類ルール】
+- エリア・最寄り駅 (area): 説明文や店名から読み取れる代表的なエリア・駅名(2〜6文字程度)。読み取れなければ "都内" としてください。
+- ジャンル (genres): ["カフェ", "居酒屋", "イタリアン", "ラーメン", "韓国料理", "スイーツ", "ビストロ", "焼肉", "和食", "中華"] の中から1〜3個
+- シーン (scenes): ["デート", "女子会", "飲み会", "一人飯", "接待", "記念日"] の中から1〜3個
+- 価格帯 (priceRange): "〜1000円", "1000〜3000円", "3000〜5000円", "5000円〜" の中から必ず1つ
+- コメント (comment): 説明文の内容を2文程度で日本語にまとめてください（説明文が無ければ店名から推測できる範囲で簡潔に）
+
+以下のJSON形式のみを出力してください:
+{
+  "area": "エリア名",
+  "genres": ["ジャンル1"],
+  "scenes": ["シーン1"],
+  "priceRange": "1000〜3000円",
+  "comment": "まとめコメント"
+}`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.7-flash',
+        contents: classifyPrompt,
+      });
+
+      const responseText = response.text || '';
+      let parsedResult: any = {};
+      try {
+        let cleanJson = responseText.trim();
+        if (cleanJson.startsWith('```json')) {
+          cleanJson = cleanJson.replace(/^```json\s*/, '').replace(/```\s*$/, '');
+        } else if (cleanJson.startsWith('```')) {
+          cleanJson = cleanJson.replace(/^```\s*/, '').replace(/```\s*$/, '');
+        }
+        parsedResult = JSON.parse(cleanJson);
+      } catch (e) {
+        console.warn('JSON parsing failed from OGP-classification response:', e);
+      }
+
+      const spot = {
+        name: fetchedTitle,
+        area: parsedResult.area || '都内',
+        genres: Array.isArray(parsedResult.genres) && parsedResult.genres.length > 0 ? parsedResult.genres : ['カフェ・喫茶'],
+        scenes: Array.isArray(parsedResult.scenes) && parsedResult.scenes.length > 0 ? parsedResult.scenes : ['友達・同僚と'],
+        priceRange: parsedResult.priceRange || '1000〜3000円',
+        recommender: sourceLabel,
+        comment: parsedResult.comment || (ogDescription ? ogDescription.slice(0, 150) : `共有リンクから追加: ${inputContent.slice(0, 100)}`),
+        mapUrl: isGoogleMaps ? expandedUrl : undefined,
+        tabelogUrl: isTabelog ? expandedUrl : undefined,
+        imageUrl: ogImage || undefined,
+      };
+
+      const responseData = {
+        spot,
+        sourceUrl: expandedUrl,
+        isAiParsed: true,
+        message: '✨ ページ情報から店舗情報を取得しました！',
+      };
+
+      if (cacheKey) {
+        urlParseCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+      }
+
+      return { status: 200, body: responseData };
+    } catch (err) {
+      // Don't escalate to the full search-grounded call below - that would
+      // spend the scarcer search quota as a retry. We already have a real
+      // title/description/image from OGP, so just use those directly.
+      console.warn('OGP-based classification failed, returning OGP-only result:', err);
+      return buildOgpOnlyFallback();
+    }
+  }
+
+  // Tier 2: no usable title could be fetched directly (e.g. a Google Maps
+  // "saved list" share URL, or plain shared text with no fetchable page) -
+  // fall back to asking Gemini to search the web itself, which can also
+  // enumerate multiple stores from a list-style share.
   try {
     const ai = new GoogleGenAI({
       apiKey,
