@@ -1,5 +1,5 @@
 import React from 'react';
-import { UtensilsCrossed, Plus, Dices, Heart, Share2, User, ListFilter, Flame, Layers } from 'lucide-react';
+import { UtensilsCrossed, Plus, Dices, Heart, Share2, User, ListFilter, Flame, Layers, HelpCircle } from 'lucide-react';
 import { MainTab } from '../types';
 
 interface HeaderProps {
@@ -13,6 +13,7 @@ interface HeaderProps {
   onOpenRandomModal: () => void;
   onOpenMyPage?: () => void;
   onOpenShareAppModal?: () => void;
+  onOpenTutorial?: () => void;
   favoritesOnly: boolean;
   onToggleFavoritesOnly: () => void;
 }
@@ -145,6 +146,19 @@ export const Header: React.FC<HeaderProps> = ({
               <Dices className="w-4 h-4 text-stone-500" />
               <span className="hidden xl:inline">決定アシスタント</span>
             </button>
+
+            {/* Tutorial / Help Guide Button */}
+            {onOpenTutorial && (
+              <button
+                id="header-tutorial-btn"
+                onClick={onOpenTutorial}
+                className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold bg-[#E8ECE8] text-[#2D4B3E] hover:bg-[#D8ECD8] border border-[#C5D8C5] transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shadow-2xs"
+                title="使い方・機能ガイドを見る"
+              >
+                <HelpCircle className="w-4 h-4 text-[#2D4B3E]" />
+                <span className="hidden md:inline">使い方</span>
+              </button>
+            )}
 
             {/* MyPage Button */}
             {onOpenMyPage && (

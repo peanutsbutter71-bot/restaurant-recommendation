@@ -31,6 +31,7 @@ import { Toast } from './components/Toast';
 import { CollabFolderInviteModal } from './components/CollabFolderInviteModal';
 import { parseCollabFolderInviteUrl, CollabFolderInvitePayload } from './utils/collabFolderHelper';
 import { UserNameSetupModal } from './components/UserNameSetupModal';
+import { TutorialHelpModal } from './components/TutorialHelpModal';
 import {
   getGroupCodeFromUrlOrStorage,
   getUserName,
@@ -302,6 +303,22 @@ export default function App() {
   // Inline Quick Import input in hero/banner
   const [heroInputUrl, setHeroInputUrl] = useState('');
   const [isHeroAnalyzing, setIsHeroAnalyzing] = useState(false);
+
+  // Tutorial & Help Modal State
+  const TUTORIAL_SEEN_KEY = 'gourmet_share_has_seen_tutorial';
+  const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return !localStorage.getItem(TUTORIAL_SEEN_KEY);
+  });
+
+  const handleCloseTutorial = () => {
+    setIsTutorialOpen(false);
+    try {
+      localStorage.setItem(TUTORIAL_SEEN_KEY, 'true');
+    } catch (e) {
+      // fallback
+    }
+  };
 
   // Group Cloud Sync State (0% Account Registration)
   const [groupCode, setGroupCodeState] = useState<string>(() => getGroupCodeFromUrlOrStorage());
@@ -840,6 +857,7 @@ export default function App() {
         onOpenRandomModal={() => setIsRandomModalOpen(true)}
         onOpenMyPage={() => setIsMyPageOpen(true)}
         onOpenShareAppModal={() => setIsShareAppModalOpen(true)}
+        onOpenTutorial={() => setIsTutorialOpen(true)}
         favoritesOnly={filters.favoritesOnly}
         onToggleFavoritesOnly={() =>
           setFilters((prev) => ({ ...prev, favoritesOnly: !prev.favoritesOnly }))
@@ -1406,6 +1424,12 @@ export default function App() {
           <span>手帳</span>
         </button>
       </div>
+
+      {/* 5-Step First-Time Tutorial Onboarding Modal */}
+      <TutorialHelpModal
+        isOpen={isTutorialOpen}
+        onClose={handleCloseTutorial}
+      />
 
       {/* Instant 0% Account User Name Setup Modal */}
       <UserNameSetupModal
