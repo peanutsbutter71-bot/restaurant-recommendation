@@ -858,6 +858,9 @@ export default function App() {
         onOpenMyPage={() => setIsMyPageOpen(true)}
         onOpenShareAppModal={() => setIsShareAppModalOpen(true)}
         onOpenTutorial={() => setIsTutorialOpen(true)}
+        onOpenNameSetup={() => setIsNameSetupOpen(true)}
+        onOpenFeedback={() => window.open('https://docs.google.com/forms', '_blank')}
+        currentUserName={currentUserName}
         favoritesOnly={filters.favoritesOnly}
         onToggleFavoritesOnly={() =>
           setFilters((prev) => ({ ...prev, favoritesOnly: !prev.favoritesOnly }))

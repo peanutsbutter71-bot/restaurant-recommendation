@@ -1,5 +1,5 @@
 import React from 'react';
-import { UtensilsCrossed, Plus, Dices, Heart, Share2, User, ListFilter, Flame, Layers, HelpCircle } from 'lucide-react';
+import { UtensilsCrossed, Plus, Dices, Heart, Share2, User, ListFilter, Flame, Layers, HelpCircle, MessageSquare } from 'lucide-react';
 import { MainTab } from '../types';
 
 interface HeaderProps {
@@ -14,6 +14,9 @@ interface HeaderProps {
   onOpenMyPage?: () => void;
   onOpenShareAppModal?: () => void;
   onOpenTutorial?: () => void;
+  onOpenNameSetup?: () => void;
+  onOpenFeedback?: () => void;
+  currentUserName?: string | null;
   favoritesOnly: boolean;
   onToggleFavoritesOnly: () => void;
 }
@@ -157,6 +160,35 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <HelpCircle className="w-4 h-4 text-[#2D4B3E]" />
                 <span className="hidden md:inline">使い方</span>
+              </button>
+            )}
+
+            {/* User Name Setup Button */}
+            {onOpenNameSetup && (
+              <button
+                id="header-[#2D4B3E]-name-btn"
+                onClick={onOpenNameSetup}
+                className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-[#2D4B3E] hover:bg-emerald-100 border border-emerald-200 transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shadow-2xs"
+                title="自分の表示名（ニックネーム）を設定・変更"
+              >
+                <User className="w-3.5 h-3.5 text-[#2D4B3E]" />
+                <span className="hidden sm:inline font-bold">
+                  {currentUserName ? `👤 ${currentUserName}` : '名前設定'}
+                </span>
+                <span className="sm:hidden font-bold">名前</span>
+              </button>
+            )}
+
+            {/* Direct Google Form Feedback Button */}
+            {onOpenFeedback && (
+              <button
+                id="header-feedback-btn"
+                onClick={onOpenFeedback}
+                className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shadow-2xs"
+                title="ご意見・バグ報告・改善リクエストを送信 (Googleフォーム)"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-amber-700" />
+                <span className="hidden lg:inline font-bold">ご意見・FB</span>
               </button>
             )}
 
