@@ -317,10 +317,13 @@ JSON構造例:
       },
     ];
 
+    // Note: no googleSearch tool here - this is pure vision/OCR extraction from
+    // the screenshot itself, so real-time web search grounding isn't needed.
+    // Dropping it removes this endpoint entirely from the (separately and more
+    // strictly rate-limited) search-grounding quota.
     const response = await ai.models.generateContent({
       model: 'gemini-3.7-flash',
       contents,
-      config: { tools: [{ googleSearch: {} }] },
     });
 
     const responseText = response.text || '';
@@ -337,18 +340,6 @@ JSON構造例:
       console.warn('Failed to parse JSON from Vision response:', responseText);
     }
 
-    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-    const webLinks: Array<{ uri: string; title: string }> = [];
-    for (const chunk of groundingChunks) {
-      if (chunk.web?.uri) {
-        webLinks.push({ uri: chunk.web.uri, title: chunk.web.title || '' });
-      }
-    }
-    const tabelogGrounding = webLinks.find((l) => l.uri.includes('tabelog.com'));
-    const mapsGrounding = webLinks.find(
-      (l) => l.uri.includes('google.com/maps') || l.uri.includes('maps.app.goo.gl')
-    );
-
     const spot = {
       name: parsedResult.name || '画像から抽出したお店',
       area: parsedResult.area || '都内',
@@ -357,8 +348,6 @@ JSON構造例:
       priceRange: parsedResult.priceRange || '1000〜3000円',
       recommender: 'スクショ画像共有',
       comment: parsedResult.comment || '画像スクショからAI自動抽出',
-      mapUrl: mapsGrounding?.uri,
-      tabelogUrl: tabelogGrounding?.uri,
     };
 
     return { status: 200, body: { spot, message: '✨ 画像から店舗情報をAI解析しました！' } };
