@@ -38,7 +38,7 @@ export const SpotMiniMapView: React.FC<SpotMiniMapViewProps> = ({
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
   const [activeSpot, setActiveSpot] = useState<RestaurantSpot | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [mapStyle, setMapStyle] = useState<'voyager' | 'osm'>('voyager');
+  const [mapStyle, setMapStyle] = useState<'voyager' | 'osm'>('osm');
 
   // Initialize Map
   useEffect(() => {
@@ -88,14 +88,18 @@ export const SpotMiniMapView: React.FC<SpotMiniMapViewProps> = ({
       }
     });
 
+    // Both styles use API-key-free tile providers. CartoDB's basemaps.cartocdn.com
+    // now requires an API key (was showing "API KEY REQUIRED" watermarks in
+    // production), so 'voyager' uses OSM's Humanitarian style tiles instead, which
+    // stay free/keyless and give a visually distinct alternative to plain OSM.
     const tileUrl =
       mapStyle === 'voyager'
-        ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+        ? 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
         : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
     L.tileLayer(tileUrl, {
       maxZoom: 19,
-      subdomains: 'abcd',
+      subdomains: 'abc',
     }).addTo(map);
   }, [mapStyle]);
 
