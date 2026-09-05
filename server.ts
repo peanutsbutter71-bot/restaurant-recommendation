@@ -62,7 +62,33 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-  app.use(express.json());
+  // Helper: Auto-expand Google Maps short URL and extract HTML title
+  async function fetchStoreMetadataFromUrl(rawUrl: string): Promise<{ title?: string; expandedUrl?: string }> {
+    try {
+      const res = await fetch(rawUrl, {
+        redirect: 'follow',
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'ja,ja-JP;q=0.9,en-US;q=0.8,en;q=0.7',
+        },
+      });
+      const expandedUrl = res.url || rawUrl;
+      const htmlText = await res.text();
+      const titleMatch = htmlText.match(/<title[^>]*>([^<]+)<\/title>/i);
+      let title = titleMatch ? titleMatch[1].trim() : undefined;
+      if (title) {
+        title = title
+          .replace(/\s*-\s*Google\s*マップ.*/i, '')
+          .replace(/\s*-\s*Google\s*Maps.*/i, '')
+          .replace(/食べログ.*/i, '')
+          .trim();
+      }
+      return { title, expandedUrl };
+    } catch (e) {
+      return { expandedUrl: rawUrl };
+    }
+  }
 
   // Simple In-Memory LRU Cache for AI URL Parsing (0 API cost for duplicate URLs)
   const urlParseCache = new Map<string, { data: any; timestamp: number }>();
@@ -93,6 +119,19 @@ async function startServer() {
     const isTabelog = extractedUrl.includes('tabelog.com');
     const isInstagram = extractedUrl.includes('instagram.com');
 
+    // Auto-Expand Short Links (e.g. maps.app.goo.gl) and fetch metadata/title
+    let fetchedTitle = '';
+    let expandedUrl = extractedUrl;
+    if (extractedUrl && (isGoogleMaps || isTabelog)) {
+      try {
+        const metadata = await fetchStoreMetadataFromUrl(extractedUrl);
+        if (metadata.title) fetchedTitle = metadata.title;
+        if (metadata.expandedUrl) expandedUrl = metadata.expandedUrl;
+      } catch (e) {
+        console.warn('Metadata fetch failed:', e);
+      }
+    }
+
     // Check Cache
     const cacheKey = (extractedUrl || inputContent).trim();
     if (cacheKey && urlParseCache.has(cacheKey)) {
@@ -105,14 +144,15 @@ async function startServer() {
     }
 
     if (!apiKey) {
-      // Fallback extraction without Gemini API
-      let fallbackName = title || '気になるお店';
-      let fallbackArea = '東京';
-      if (inputContent) {
-        const firstLine = inputContent.split('\n')[0].replace(/https?:\/\/[^\s]+/g, '').trim();
-        if (firstLine.length > 0 && firstLine.length < 30) {
-          fallbackName = firstLine;
-        }
+      // Fallback extraction without Gemini API using fetched page title
+      let fallbackName = fetchedTitle || title || '気になるお店';
+      let fallbackArea = '表参道';
+
+      // Try extracting area from title (e.g. "CHAVATY 表参道")
+      if (fetchedTitle) {
+        const areaMatches = ['表参道', '渋谷', '新宿', '恵比寿', '中目黒', '銀座', '池袋', '六本木', '高田馬場', '下北沢', '横浜', '京都', '大阪', '鎌倉', '福岡', '札幌', '沖縄'];
+        const matched = areaMatches.find((a) => fetchedTitle.includes(a));
+        if (matched) fallbackArea = matched;
       }
 
       return res.json({
@@ -121,16 +161,15 @@ async function startServer() {
           area: fallbackArea,
           genres: ['カフェ・喫茶'],
           scenes: ['友達・同僚と'],
-          priceRange: '¥1,000〜¥2,000',
+          priceRange: '1000〜3000円',
           recommender: '共有リンク',
           comment: `共有リンクから追加: ${inputContent.slice(0, 100)}`,
-          mapUrl: isGoogleMaps ? extractedUrl : undefined,
-          tabelogUrl: isTabelog ? extractedUrl : undefined,
-          highlightDish: '',
+          mapUrl: isGoogleMaps ? expandedUrl : undefined,
+          tabelogUrl: isTabelog ? expandedUrl : undefined,
         },
-        sourceUrl: extractedUrl,
-        isAiParsed: false,
-        message: '基本情報のみ抽出しました。必要に応じて補正してください。',
+        sourceUrl: expandedUrl,
+        isAiParsed: !!fetchedTitle,
+        message: fetchedTitle ? '✨ 店舗名を自動取得しました！' : '基本情報のみ抽出しました。必要に応じて補正してください。',
       });
     }
 
@@ -243,13 +282,15 @@ ${inputContent}
       }));
 
       const firstSpot = formattedSpots[0] || {
-        name: '共有から追加したお店',
-        area: '都内',
+        name: fetchedTitle || title || '気になるお店',
+        area: '表参道',
         genres: ['カフェ・喫茶'],
+        scenes: ['友達・同僚と'],
         priceRange: '1000〜3000円',
         recommender: '共有リンク',
         comment: `共有リンクから追加: ${inputContent.slice(0, 100)}`,
-        mapUrl: isGoogleMaps ? extractedUrl : undefined,
+        mapUrl: isGoogleMaps ? expandedUrl : undefined,
+        tabelogUrl: isTabelog ? expandedUrl : undefined,
       };
 
       const responseData = {
