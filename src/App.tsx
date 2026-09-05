@@ -16,7 +16,6 @@ import { Header } from './components/Header';
 import { FilterSortBar } from './components/FilterSortBar';
 import { SpotCard } from './components/SpotCard';
 import { SpotListItem } from './components/SpotListItem';
-import { SpotMiniMapView } from './components/SpotMiniMapView';
 import { SpotDetailModal } from './components/SpotDetailModal';
 import { AddEditSpotModal } from './components/AddEditSpotModal';
 import { RandomRouletteModal } from './components/RandomRouletteModal';
@@ -63,10 +62,8 @@ import {
   ChefHat,
   SearchX,
   RotateCcw,
-  MapPin,
   LayoutGrid,
   List,
-  Map,
   Share2,
   Clipboard,
   Utensils,
@@ -168,9 +165,6 @@ export default function App() {
     sortBy: 'newest',
   });
 
-  // View mode: 'both' (Map + Grid/List), 'grid' (List/Cards only), 'map' (Map focused)
-  const [viewMode, setViewMode] = useState<'both' | 'grid' | 'map'>('grid');
-  
   // Card Display Mode: 'list' (コンパクトリスト) vs 'card' (大カード写真重視)
   const [cardDisplayMode, setCardDisplayMode] = useState<'list' | 'card'>(() => {
     try {
@@ -181,8 +175,6 @@ export default function App() {
     }
     return 'list'; // Default to compact list for fast browsing & less scrolling
   });
-
-  const [activeMapSpotId, setActiveMapSpotId] = useState<string | null>(null);
 
   // Active modals
   const [selectedSpot, setSelectedSpot] = useState<RestaurantSpot | null>(null);
@@ -1029,119 +1021,48 @@ export default function App() {
           allCount={spots.length}
         />
 
-        {/* View Mode & Card Layout Switcher Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-1">
-          {/* Left: Overall View Mode (Map+List / List Only / Map Only) */}
-          <div className="flex items-center gap-1.5 text-xs text-stone-500 font-bold flex-wrap">
-            <span className="hidden sm:inline">表示:</span>
-            <div className="inline-flex p-1 bg-stone-200/70 rounded-2xl border border-stone-200">
+        {/* Card Layout Switcher Header */}
+        <div className="flex items-center justify-end gap-2.5 pt-1">
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <span className="text-[11px] font-bold text-stone-400">
+              カード形式:
+            </span>
+            <div className="inline-flex p-0.5 bg-stone-200/80 rounded-xl border border-stone-200">
               <button
                 type="button"
-                id="view-mode-both"
-                onClick={() => setViewMode('both')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === 'both'
-                    ? 'bg-white text-stone-900 shadow-sm'
+                id="card-display-list-btn"
+                onClick={() => handleSetCardDisplayMode('list')}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  cardDisplayMode === 'list'
+                    ? 'bg-white text-stone-900 shadow-xs'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
-                title="地図と一覧の両方を表示"
+                title="スクロールが短く一覧しやすいコンパクトリスト"
               >
-                <MapPin className="w-3.5 h-3.5 text-rose-500" />
-                <span>マップ＋一覧</span>
+                <List className="w-3.5 h-3.5 text-rose-500" />
+                <span>リスト（省スペース）</span>
               </button>
 
               <button
                 type="button"
-                id="view-mode-grid"
-                onClick={() => setViewMode('grid')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === 'grid'
-                    ? 'bg-white text-stone-900 shadow-sm'
+                id="card-display-card-btn"
+                onClick={() => handleSetCardDisplayMode('card')}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  cardDisplayMode === 'card'
+                    ? 'bg-white text-stone-900 shadow-xs'
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
-                title="一覧のみ表示"
+                title="写真を大きく見せるカード"
               >
-                <LayoutGrid className="w-3.5 h-3.5 text-amber-600" />
-                <span>一覧のみ</span>
-              </button>
-
-              <button
-                type="button"
-                id="view-mode-map"
-                onClick={() => setViewMode('map')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === 'map'
-                    ? 'bg-white text-stone-900 shadow-sm'
-                    : 'text-stone-600 hover:text-stone-900'
-                }`}
-                title="マップをフル表示"
-              >
-                <Map className="w-3.5 h-3.5 text-rose-500" />
-                <span>マップ専従</span>
+                <LayoutGrid className="w-3.5 h-3.5 text-amber-500" />
+                <span>写真カード</span>
               </button>
             </div>
           </div>
-
-          {/* Right: Card Display Style Toggle (Compact List vs Big Photo Card) */}
-          {viewMode !== 'map' && (
-            <div className="flex items-center gap-2 self-end sm:self-auto">
-              <span className="text-[11px] font-bold text-stone-400">
-                カード形式:
-              </span>
-              <div className="inline-flex p-0.5 bg-stone-200/80 rounded-xl border border-stone-200">
-                <button
-                  type="button"
-                  id="card-display-list-btn"
-                  onClick={() => handleSetCardDisplayMode('list')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    cardDisplayMode === 'list'
-                      ? 'bg-white text-stone-900 shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                  title="スクロールが短く一覧しやすいコンパクトリスト"
-                >
-                  <List className="w-3.5 h-3.5 text-rose-500" />
-                  <span>リスト（省スペース）</span>
-                </button>
-
-                <button
-                  type="button"
-                  id="card-display-card-btn"
-                  onClick={() => handleSetCardDisplayMode('card')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    cardDisplayMode === 'card'
-                      ? 'bg-white text-stone-900 shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                  title="写真を大きく見せるカード"
-                >
-                  <LayoutGrid className="w-3.5 h-3.5 text-amber-500" />
-                  <span>写真カード</span>
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Mini Map View Section (when viewMode is 'both' or 'map') */}
-        {(viewMode === 'both' || viewMode === 'map') && filteredAndSortedSpots.length > 0 && (
-          <div className="animate-in fade-in duration-200">
-            <SpotMiniMapView
-              spots={filteredAndSortedSpots}
-              selectedSpotId={activeMapSpotId}
-              onSelectSpot={(spot) => {
-                setSelectedSpot(spot);
-                setActiveMapSpotId(spot.id);
-              }}
-              onToggleFavorite={handleToggleFavorite}
-              onToggleVisited={handleToggleVisited}
-            />
-          </div>
-        )}
-
-        {/* Spots List / Grid View (when viewMode is 'both' or 'grid') */}
-        {viewMode !== 'map' && (
-          <>
+        {/* Spots List / Grid View */}
+        <>
             {filteredAndSortedSpots.length > 0 ? (
               cardDisplayMode === 'list' ? (
                 /* Compact List Layout (Fast browsing, minimal vertical scroll) */
@@ -1150,10 +1071,7 @@ export default function App() {
                     <SpotListItem
                       key={spot.id}
                       spot={spot}
-                      onSelect={(selected) => {
-                        setSelectedSpot(selected);
-                        setActiveMapSpotId(selected.id);
-                      }}
+                      onSelect={(selected) => setSelectedSpot(selected)}
                       onToggleFavorite={handleToggleFavorite}
                       onToggleVisited={handleToggleVisited}
                       onToggleReaction={handleToggleReaction}
@@ -1167,10 +1085,7 @@ export default function App() {
                     <SpotCard
                       key={spot.id}
                       spot={spot}
-                      onSelect={(selected) => {
-                        setSelectedSpot(selected);
-                        setActiveMapSpotId(selected.id);
-                      }}
+                      onSelect={(selected) => setSelectedSpot(selected)}
                       onToggleFavorite={handleToggleFavorite}
                       onToggleVisited={handleToggleVisited}
                       onToggleReaction={handleToggleReaction}
@@ -1223,7 +1138,6 @@ export default function App() {
               </div>
             )}
           </>
-        )}
       </main>
       )}
 

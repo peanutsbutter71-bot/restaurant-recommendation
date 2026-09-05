@@ -71,6 +71,10 @@ export const AddEditSpotModal: React.FC<AddEditSpotModalProps> = ({
   );
   const [isCustomArea, setIsCustomArea] = useState(!initialAreaIsCommon);
 
+  const [nearestStation, setNearestStation] = useState(
+    initialSpot?.nearestStation || ''
+  );
+
   const [genres, setGenres] = useState<string[]>(
     initialSpot?.genres && initialSpot.genres.length > 0
       ? initialSpot.genres
@@ -254,6 +258,7 @@ export const AddEditSpotModal: React.FC<AddEditSpotModalProps> = ({
       id: initialSpot?.id || `spot-${Date.now()}`,
       name: name.trim(),
       area: finalArea,
+      nearestStation: nearestStation.trim() || undefined,
       genres,
       priceRange,
       scenes,
@@ -407,6 +412,22 @@ export const AddEditSpotModal: React.FC<AddEditSpotModalProps> = ({
               />
             )}
             {errors.area && <p className="text-xs text-orange-600">{errors.area}</p>}
+          </div>
+
+          {/* Nearest Station */}
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-stone-700 flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-stone-500" />
+              最寄り駅
+            </label>
+            <input
+              id="input-nearest-station"
+              type="text"
+              placeholder="最寄り駅を入力（例: 表参道駅）"
+              value={nearestStation}
+              onChange={(e) => setNearestStation(e.target.value)}
+              className="w-full px-3.5 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-stone-900"
+            />
           </div>
 
           {/* Price Range */}

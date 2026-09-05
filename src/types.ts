@@ -27,6 +27,7 @@ export interface RestaurantSpot {
   id: string;
   name: string;
   area: string;
+  nearestStation?: string; // 最寄り駅（自由入力、例: "表参道駅"）
   genres: string[];
   priceRange: PriceRange;
   scenes: Scene[];

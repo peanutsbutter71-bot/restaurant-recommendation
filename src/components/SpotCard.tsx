@@ -59,6 +59,7 @@ export const SpotCard: React.FC<SpotCardProps> = ({
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md text-white font-medium text-xs shadow-2xs">
               <MapPin className="w-3 h-3 text-emerald-200" />
               {spot.area}
+              {spot.nearestStation && ` ／ ${spot.nearestStation}`}
             </span>
 
             {/* Closed Alert Badge if Permanently or Temporarily Closed */}

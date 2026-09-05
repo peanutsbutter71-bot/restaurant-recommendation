@@ -87,6 +87,7 @@ export const SpotListItem: React.FC<SpotListItemProps> = ({
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-100 text-stone-800 font-semibold text-[11px]">
               <MapPin className="w-2.5 h-2.5 text-[#2D4B3E]" />
               {spot.area}
+              {spot.nearestStation && ` ／ ${spot.nearestStation}`}
             </span>
 
             {/* Price badge */}

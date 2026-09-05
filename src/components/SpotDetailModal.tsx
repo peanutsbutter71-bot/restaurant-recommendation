@@ -307,6 +307,7 @@ export const SpotDetailModal: React.FC<SpotDetailModalProps> = ({
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-white/95 text-stone-900 font-bold">
                   <MapPin className="w-3 h-3 text-stone-700" />
                   {spot.area}
+                  {spot.nearestStation && ` ／ ${spot.nearestStation}`}
                 </span>
                 <span className="px-2 py-0.5 rounded-md font-semibold bg-stone-900/90 text-stone-200 border border-stone-700/60">
                   {spot.priceRange}
