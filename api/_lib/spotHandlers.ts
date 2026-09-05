@@ -46,6 +46,27 @@ function decodeHtmlEntities(text: string): string {
     .replace(/&nbsp;/g, ' ');
 }
 
+// Google Maps individual place pages are rendered client-side by JavaScript,
+// so a plain server-side fetch often gets a generic shell page whose
+// og:title/<title> is just the site name (e.g. "Google Maps"), not the
+// actual store name. Treat these as "no title found" so callers fall back
+// to the AI web-search path instead of registering a spot literally named
+// "Google Maps". Tabelog pages are server-rendered and don't hit this.
+const GENERIC_PAGE_TITLES = new Set([
+  'google maps',
+  'google マップ',
+  'マップ',
+  'maps',
+  '食べログ',
+  'tabelog',
+  'instagram',
+]);
+
+function isGenericPageTitle(t: string): boolean {
+  const normalized = t.trim().toLowerCase();
+  return !normalized || GENERIC_PAGE_TITLES.has(normalized);
+}
+
 // Helper: Auto-expand Google Maps short URL and extract the page's title +
 // Open Graph metadata (name/description/image), so callers can build a
 // useful spot without necessarily needing an AI web-search call at all.
@@ -73,6 +94,9 @@ async function fetchStoreMetadataFromUrl(
         .replace(/\s*-\s*Google\s*Maps.*/i, '')
         .replace(/\s*[-|｜]\s*食べログ.*/i, '')
         .trim();
+    }
+    if (title && isGenericPageTitle(title)) {
+      title = undefined;
     }
 
     const ogDescription = extractMetaTagContent(htmlText, 'og:description');
