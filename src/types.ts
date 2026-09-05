@@ -1,6 +1,6 @@
 export type PriceRange = '〜1000円' | '1000〜3000円' | '3000〜5000円' | '5000円〜';
 
-export type Scene = 'デート' | '女子会' | '飲み会' | '一人飯' | '接待' | '記念日';
+export type Scene = 'デート' | '女子会' | '飲み会' | '一人飯' | '接待' | '記念日' | '2次会';
 
 export type VisitStatusFilter = 'all' | 'unvisited' | 'visited';
 
@@ -157,6 +157,7 @@ export const ALL_SCENES: Scene[] = [
   'デート',
   '女子会',
   '飲み会',
+  '2次会',
   '一人飯',
   '接待',
   '記念日',

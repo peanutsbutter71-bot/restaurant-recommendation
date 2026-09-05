@@ -29,7 +29,7 @@ import {
   MessageSquare,
   ExternalLink,
 } from 'lucide-react';
-import { RestaurantSpot, CustomFolder, PriceRange, Scene } from '../types';
+import { RestaurantSpot, CustomFolder, PriceRange, Scene, ALL_SCENES } from '../types';
 import { downloadJsonBackup, parseBackupFile } from '../utils/backupHelper';
 import { generateRecommenderAvatar } from '../utils/helpers';
 import { generateCollabFolderInviteUrl } from '../utils/collabFolderHelper';
@@ -63,7 +63,6 @@ const FOLDER_COLORS = [
 ];
 
 const ALL_PRICE_RANGES: PriceRange[] = ['〜1000円', '1000〜3000円', '3000〜5000円', '5000円〜'];
-const ALL_SCENES: Scene[] = ['デート', '女子会', '飲み会', '一人飯', '接待', '記念日'];
 
 export const MyPageModal: React.FC<MyPageModalProps> = ({
   isOpen,
@@ -174,6 +173,7 @@ export const MyPageModal: React.FC<MyPageModalProps> = ({
     デート: 0,
     女子会: 0,
     飲み会: 0,
+    '2次会': 0,
     一人飯: 0,
     接待: 0,
     記念日: 0,

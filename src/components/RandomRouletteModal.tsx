@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { X, Sparkles, MapPin, ArrowRight, RefreshCw, MessageSquare, Filter, Utensils, Users2, Bookmark } from 'lucide-react';
-import { RestaurantSpot, Scene } from '../types';
+import { RestaurantSpot, Scene, ALL_SCENES } from '../types';
 import { generateRecommenderAvatar, getOptimizedImageUrl } from '../utils/helpers';
 
 interface RandomRouletteModalProps {
@@ -9,8 +9,6 @@ interface RandomRouletteModalProps {
   onSelectSpot: (spot: RestaurantSpot) => void;
   onShowToast?: (message: string) => void;
 }
-
-const ALL_SCENES: Scene[] = ['デート', '女子会', '飲み会', '一人飯', '接待', '記念日'];
 
 export const RandomRouletteModal: React.FC<RandomRouletteModalProps> = ({
   spots,

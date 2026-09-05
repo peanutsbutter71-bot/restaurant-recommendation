@@ -18,6 +18,7 @@ export const SCENE_COLORS: Record<Scene, { bg: string; text: string; border: str
   'デート': { bg: 'bg-stone-100/90', text: 'text-stone-800', border: 'border-stone-200' },
   '女子会': { bg: 'bg-stone-100/90', text: 'text-stone-800', border: 'border-stone-200' },
   '飲み会': { bg: 'bg-stone-100/90', text: 'text-stone-800', border: 'border-stone-200' },
+  '2次会': { bg: 'bg-stone-100/90', text: 'text-stone-800', border: 'border-stone-200' },
   '一人飯': { bg: 'bg-stone-100/90', text: 'text-stone-800', border: 'border-stone-200' },
   '接待': { bg: 'bg-stone-100/90', text: 'text-stone-800', border: 'border-stone-200' },
   '記念日': { bg: 'bg-stone-100/90', text: 'text-stone-800', border: 'border-stone-200' },
